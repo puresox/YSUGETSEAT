@@ -81,7 +81,7 @@ async function occupy({
 async function index() {
   const time = moment().format('YYYY-MM-DD HH:mm');
   const startTime = moment().format('YYYY-MM-DD 07:00');
-  const endTime = moment().format('YYYY-MM-DD 21:10');
+  const endTime = moment().format('YYYY-MM-DD 21:30');
   if (moment(time).isBetween(startTime, endTime, 'minute')) {
     // 登陆
     await login();
