@@ -2,27 +2,22 @@ const axios = require('axios');
 const moment = require('moment');
 const config = require('./config');
 
-let session = '';
-
 /**
  *登录获取session
  *
  * @returns
  */
-async function login() {
-  const loginUrl = `http://seat.ysu.edu.cn/ClientWeb/pro/ajax/login.aspx?act=login&id=${
-    config.id
-  }&pwd=${config.pwd}&role=512&aliuserid=&schoolcode=&wxuserid=&_nocache=1531731958096`;
-  return axios.get(loginUrl).then(({ data, headers }) => {
-    if (data.ret === 1) {
-      // 保存session
-      ({
-        'set-cookie': [session],
-      } = headers);
-    } else {
-      throw new Error('账户密码错误');
-    }
-  });
+async function login({ id, pwd }) {
+  const loginUrl = `http://seat.ysu.edu.cn/ClientWeb/pro/ajax/login.aspx?act=login&id=${id}&pwd=${pwd}&role=512&aliuserid=&schoolcode=&wxuserid=&_nocache=1531731958096`;
+  const { data, headers } = await axios.get(loginUrl);
+  if (data.ret === 1) {
+    // 保存session
+    const {
+      'set-cookie': [session],
+    } = headers;
+    return session;
+  }
+  return false;
 }
 
 /**
@@ -30,7 +25,7 @@ async function login() {
  *
  * @returns
  */
-async function getResvInfo() {
+async function getResvInfo(session) {
   const getResvIdUrl = 'http://seat.ysu.edu.cn/ClientWeb/pro/ajax/reserve.aspx?stat_flag=9&act=get_my_resv&_nocache=1531801794371';
   const {
     data: { data },
@@ -49,14 +44,34 @@ async function getResvInfo() {
  *
  * @param {*} resvId
  */
-async function delResv(resvId) {
+async function delResv(session, resvId) {
   const delResvUrl = `http://seat.ysu.edu.cn/ClientWeb/pro/ajax/reserve.aspx?act=del_resv&id=${resvId}&_nocache=1531823241100`;
   await axios.get(delResvUrl, {
     headers: { Cookie: session },
   });
 }
 
-async function reserve() {}
+/**
+ *预约座位
+ *
+ * @param {*} { devId, labId }
+ */
+async function reserve(session, { devId, labId }) {
+  const s = moment().isAfter(moment().format('YYYY-MM-DD 21:30'), 'minute')
+    ? moment()
+      .add(1, 'days')
+      .format('YYYY-MM-DD 07:30')
+    : moment().format('YYYY-MM-DD 07:30');
+  const e = moment().isAfter(moment().format('YYYY-MM-DD 21:30'), 'minute')
+    ? moment()
+      .add(1, 'days')
+      .format('YYYY-MM-DD 22:30')
+    : moment().format('YYYY-MM-DD 22:30');
+  const reserveUrl = `http://seat.ysu.edu.cn/ClientWeb/pro/ajax/reserve.aspx?dev_id=${devId}&lab_id=${labId}&room_id=&kind_id=&type=dev&prop=&test_id=&resv_id=&term=&min_user=&max_user=&mb_list=&test_name=&start=${s}&end=${e}&memo=&act=set_resv&_nocache=1531732522498`;
+  await axios.get(reserveUrl, {
+    headers: { Cookie: session },
+  });
+}
 
 /**
  *修改预约信息占座
@@ -66,7 +81,7 @@ async function reserve() {}
  * }
  * @returns
  */
-async function occupy({
+async function occupy(session, {
   resvId, devId, labId, start, end,
 }) {
   const occupyUrl = `http://seat.ysu.edu.cn/ClientWeb/pro/ajax/reserve.aspx?dev_id=${devId}&lab_id=${labId}&room_id=&kind_id=&type=dev&prop=&test_id=&resv_id=${resvId}&term=&min_user=&max_user=&mb_list=&test_name=&start=${start}&end=${end}&memo=&act=set_resv&_nocache=1531732522498`;
@@ -78,32 +93,58 @@ async function occupy({
   return ret === 1;
 }
 
-async function index() {
-  const time = moment().format('YYYY-MM-DD HH:mm');
+async function getSeat(user) {
   const startTime = moment().format('YYYY-MM-DD 07:00');
   const endTime = moment().format('YYYY-MM-DD 21:30');
-  if (moment(time).isBetween(startTime, endTime, 'minute')) {
-    // 登陆
-    await login();
+  if (moment().isBetween(startTime, endTime, 'minute')) {
+    // 登陆获取session
+    const session = await login(user);
+    if (!session) {
+      return;
+    }
     // 获取预约信息
-    const info = await getResvInfo();
-    if (info) {
-      // 占座 预约时间调到20分钟后
-      info.start = moment()
-        .add(20, 'm')
-        .format('YYYY-MM-DD HH:mm');
-      info.end = moment().format('YYYY-MM-DD 22:30');
-      const occupyRes = await occupy(info);
-      if (!occupyRes) {
-        await delResv(info.resvId);
-      }
-    } else {
-      // 若无预约信息则预约
+    const info = await getResvInfo(session);
+    if (!info) {
+      return;
+    }
+    // 占座 预约时间调到20分钟后
+    info.start = moment()
+      .add(20, 'm')
+      .format('YYYY-MM-DD HH:mm');
+    info.end = moment().format('YYYY-MM-DD 22:30');
+    const occupyRes = await occupy(session, info);
+    if (!occupyRes) {
+      await delResv(session, info.resvId);
+    }
+  } else {
+    // 登陆获取session
+    const session = await login(user);
+    if (!session) {
+      return;
+    }
+    // 获取预约信息
+    const info = await getResvInfo(session);
+    if (!info) {
+      const { devId, labId } = user;
+      await reserve(session, {
+        devId,
+        labId,
+      });
     }
   }
+  // TODO: log
+  // TODO: reserve => occupy
+}
+
+async function index() {
+  const getSeatPromises = [];
+  config.forEach((user) => {
+    getSeatPromises.push(getSeat(user));
+  });
+  await Promise.all(getSeatPromises);
 }
 
 index();
 
-// 10分钟一次
+// 5分钟一次
 setInterval(index, 1000 * 60 * 5);
