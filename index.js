@@ -89,12 +89,13 @@ async function getSeat(user) {
   const endTime = moment().format('YYYY-MM-DD 21:30');
   // 是否为图书馆开馆时间
   if (!moment().isBetween(startTime, endTime, 'minute')) {
-    logger.info('the library is close,system end');
+    logger.warn('the library is close,system end');
     return;
   }
   // 登陆 获取session
   const session = await login(user);
   if (!session) {
+    logger.error(`the user:${user.id} login error,system end`);
     return;
   }
   // 获取预约信息
