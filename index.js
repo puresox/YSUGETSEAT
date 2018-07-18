@@ -1,6 +1,19 @@
 const axios = require('axios');
 const moment = require('moment');
+const log4js = require('log4js');
 const config = require('./config');
+
+log4js.configure({
+  appenders: {
+    out: { type: 'stdout' },
+    app: { type: 'file', filename: 'application.log' },
+    console: { type: 'console' },
+  },
+  categories: {
+    default: { appenders: ['out', 'app', 'console'], level: 'debug' },
+  },
+});
+const logger = log4js.getLogger();
 
 /**
  *登录获取session
@@ -76,6 +89,7 @@ async function getSeat(user) {
   const endTime = moment().format('YYYY-MM-DD 21:30');
   // 是否为图书馆开馆时间
   if (!moment().isBetween(startTime, endTime, 'minute')) {
+    logger.info('the library is close,system end');
     return;
   }
   // 登陆 获取session
@@ -100,6 +114,7 @@ async function getSeat(user) {
       start,
       end,
     });
+    logger.info(`the user:${user.id} reserves a new seat successfully`);
   } else {
     // 占座 预约时间调到20分钟后
     info.start = start;
@@ -107,18 +122,25 @@ async function getSeat(user) {
     const occupyRes = await occupy(session, info);
     if (!occupyRes) {
       await delResv(session, info.resvId);
+      logger.info(`the user:${user.id} delete a reserve successfully`);
+    } else {
+      logger.info(`the user:${user.id} change a reserve successfully`);
     }
   }
   // TODO: log
 }
 
 async function index() {
+  logger.info('----------------------------------------------------------------------------');
   const getSeatPromises = [];
   config.forEach((user) => {
     getSeatPromises.push(getSeat(user));
   });
   await Promise.all(getSeatPromises);
+  logger.info('----------------------------------------------------------------------------');
 }
+
+logger.info('system start');
 
 index();
 
