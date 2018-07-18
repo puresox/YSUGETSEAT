@@ -107,14 +107,18 @@ async function getSeat(user) {
   if (!info) {
     // 预约座位
     const { devId, labId } = user;
-    await occupy(session, {
+    const occupyRes = await occupy(session, {
       resvId: '',
       devId,
       labId,
       start,
       end,
     });
-    logger.info(`the user:${user.id} reserves a new seat successfully`);
+    if (occupyRes) {
+      logger.info(`the user:${user.id} reserves a new seat successfully`);
+    } else {
+      logger.error(`the user:${user.id} fail to reserves a new seat`);
+    }
   } else {
     // 占座 预约时间调到20分钟后
     info.start = start;
@@ -127,7 +131,7 @@ async function getSeat(user) {
       logger.info(`the user:${user.id} change a reserve successfully`);
     }
   }
-  // TODO: log
+  // TODO: log && error
 }
 
 async function index() {
