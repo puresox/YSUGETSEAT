@@ -52,28 +52,6 @@ async function delResv(session, resvId) {
 }
 
 /**
- *预约座位
- *
- * @param {*} { devId, labId }
- */
-async function reserve(session, { devId, labId }) {
-  const s = moment().isAfter(moment().format('YYYY-MM-DD 21:30'), 'minute')
-    ? moment()
-      .add(1, 'days')
-      .format('YYYY-MM-DD 07:30')
-    : moment().format('YYYY-MM-DD 07:30');
-  const e = moment().isAfter(moment().format('YYYY-MM-DD 21:30'), 'minute')
-    ? moment()
-      .add(1, 'days')
-      .format('YYYY-MM-DD 22:30')
-    : moment().format('YYYY-MM-DD 22:30');
-  const reserveUrl = `http://seat.ysu.edu.cn/ClientWeb/pro/ajax/reserve.aspx?dev_id=${devId}&lab_id=${labId}&room_id=&kind_id=&type=dev&prop=&test_id=&resv_id=&term=&min_user=&max_user=&mb_list=&test_name=&start=${s}&end=${e}&memo=&act=set_resv&_nocache=1531732522498`;
-  await axios.get(reserveUrl, {
-    headers: { Cookie: session },
-  });
-}
-
-/**
  *修改预约信息占座
  *
  * @param {*} {
@@ -96,44 +74,42 @@ async function occupy(session, {
 async function getSeat(user) {
   const startTime = moment().format('YYYY-MM-DD 07:00');
   const endTime = moment().format('YYYY-MM-DD 21:30');
-  if (moment().isBetween(startTime, endTime, 'minute')) {
-    // 登陆获取session
-    const session = await login(user);
-    if (!session) {
-      return;
-    }
-    // 获取预约信息
-    const info = await getResvInfo(session);
-    if (!info) {
-      return;
-    }
+  // 是否为图书馆开馆时间
+  if (!moment().isBetween(startTime, endTime, 'minute')) {
+    return;
+  }
+  // 登陆 获取session
+  const session = await login(user);
+  if (!session) {
+    return;
+  }
+  // 获取预约信息
+  const info = await getResvInfo(session);
+  const start = moment()
+    .add(20, 'm')
+    .format('YYYY-MM-DD HH:mm');
+  const end = moment().format('YYYY-MM-DD 22:30');
+  // 是否已经预约
+  if (!info) {
+    // 预约座位
+    const { devId, labId } = user;
+    await occupy(session, {
+      resvId: '',
+      devId,
+      labId,
+      start,
+      end,
+    });
+  } else {
     // 占座 预约时间调到20分钟后
-    info.start = moment()
-      .add(20, 'm')
-      .format('YYYY-MM-DD HH:mm');
-    info.end = moment().format('YYYY-MM-DD 22:30');
+    info.start = start;
+    info.end = end;
     const occupyRes = await occupy(session, info);
     if (!occupyRes) {
       await delResv(session, info.resvId);
     }
-  } else {
-    // 登陆获取session
-    const session = await login(user);
-    if (!session) {
-      return;
-    }
-    // 获取预约信息
-    const info = await getResvInfo(session);
-    if (!info) {
-      const { devId, labId } = user;
-      await reserve(session, {
-        devId,
-        labId,
-      });
-    }
   }
   // TODO: log
-  // TODO: reserve => occupy
 }
 
 async function index() {
