@@ -5,7 +5,12 @@ const config = require('./config');
 
 log4js.configure({
   appenders: {
-    app: { type: 'file', filename: 'application.log' },
+    app: {
+      type: 'dateFile',
+      filename: 'logs/application.log',
+      compress: true,
+      keepFileExt: true,
+    },
     console: { type: 'console' },
   },
   categories: {
