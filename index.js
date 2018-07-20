@@ -5,12 +5,11 @@ const config = require('./config');
 
 log4js.configure({
   appenders: {
-    out: { type: 'stdout' },
     app: { type: 'file', filename: 'application.log' },
     console: { type: 'console' },
   },
   categories: {
-    default: { appenders: ['out', 'app', 'console'], level: 'debug' },
+    default: { appenders: ['app', 'console'], level: 'debug' },
   },
 });
 const logger = log4js.getLogger();
