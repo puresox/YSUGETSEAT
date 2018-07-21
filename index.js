@@ -105,9 +105,13 @@ async function getSeat(user) {
     return;
   }
   const reserves = msg;
-  const start = moment()
+  const startReal = moment().format('YYYY-MM-DD 07:30');
+  let start = moment()
     .add(20, 'm')
     .format('YYYY-MM-DD HH:mm');
+  if (moment(start).isBefore(startReal, 'minute')) {
+    start = startReal;
+  }
   const end = moment().format('YYYY-MM-DD 22:30');
   // 是否已经预约
   if (reserves.length === 0) {
