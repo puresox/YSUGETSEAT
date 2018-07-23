@@ -1,6 +1,7 @@
 const axios = require('axios');
 const moment = require('moment');
 const log4js = require('log4js');
+const schedule = require('node-schedule');
 const config = require('./config');
 
 log4js.configure({
@@ -126,6 +127,9 @@ async function getSeat(user) {
     }));
     if (success) {
       logger.info(`the user:${user.id} reserves a new seat successfully`);
+    } else if (!msg.includes('预约与现有预约冲突')) {
+      logger.error(`the user:${user.id} fail to reserve a new seat. Error:${msg}`);
+      await getSeat(user);
     } else {
       logger.error(`the user:${user.id} fail to reserve a new seat. Error:${msg}`);
     }
@@ -154,7 +158,7 @@ async function index() {
   const endTime = moment().format('YYYY-MM-DD 21:30');
   // 是否为图书馆开馆时间
   if (!moment().isBetween(startTime, endTime, 'minute')) {
-    logger.warn('the library is close,system end');
+    // logger.warn('the library is close,system end');
     return;
   }
   logger.info('----------------------------------------------------------------------------');
@@ -174,4 +178,7 @@ logger.info('system start');
 index();
 
 // 5分钟一次
-setInterval(index, 1000 * 60 * 5);
+schedule.scheduleJob('*/5 * * * *', index);
+
+// TODO:调剂
+// TODO:可视化界面
