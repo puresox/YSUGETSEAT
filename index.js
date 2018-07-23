@@ -178,7 +178,9 @@ logger.info('system start');
 index();
 
 // 5分钟一次
-schedule.scheduleJob('*/5 * * * *', index);
+schedule.scheduleJob('*/5 * * * *', async () => {
+  await index();
+});
 
 // TODO:调剂
 // TODO:可视化界面
