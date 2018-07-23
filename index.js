@@ -154,7 +154,7 @@ async function getSeat(user) {
 }
 
 async function index() {
-  const startTime = moment().format('YYYY-MM-DD 07:00');
+  const startTime = moment().format('YYYY-MM-DD 06:59');
   const endTime = moment().format('YYYY-MM-DD 21:30');
   // 是否为图书馆开馆时间
   if (!moment().isBetween(startTime, endTime, 'minute')) {
@@ -183,3 +183,4 @@ schedule.scheduleJob('*/5 * * * *', async () => {
 // TODO:devid转换
 // TODO:调剂
 // TODO:可视化界面
+// TODO:前一天预约
