@@ -127,7 +127,7 @@ async function getSeat(user) {
     }));
     if (success) {
       logger.info(`the user:${user.id} reserves a new seat successfully`);
-    } else if (!msg.includes('预约与现有预约冲突')) {
+    } else if (!msg.includes('预约与现有预约冲突') && !msg.includes('预约时间')) {
       logger.error(`the user:${user.id} fail to reserve a new seat. Error:${msg}`);
       await getSeat(user);
     } else {
@@ -179,6 +179,7 @@ schedule.scheduleJob('*/5 * * * *', async () => {
   await index();
 });
 
+// TODO:9点半释放
 // TODO:devid转换
 // TODO:调剂
 // TODO:可视化界面
