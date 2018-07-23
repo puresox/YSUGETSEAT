@@ -162,14 +162,11 @@ async function index() {
     return;
   }
   logger.info('----------------------------------------------------------------------------');
-  for (const user of config) {
-    await getSeat(user);
-  }
-  // const getSeatPromises = [];
-  // config.forEach((user) => {
-  //   getSeatPromises.push(getSeat(user));
-  // });
-  // await Promise.all(getSeatPromises);
+  const getSeatPromises = [];
+  config.forEach((user) => {
+    getSeatPromises.push(getSeat(user));
+  });
+  await Promise.all(getSeatPromises);
   logger.info('----------------------------------------------------------------------------');
 }
 
@@ -182,5 +179,6 @@ schedule.scheduleJob('*/5 * * * *', async () => {
   await index();
 });
 
+// TODO:devid转换
 // TODO:调剂
 // TODO:可视化界面
