@@ -135,6 +135,12 @@ async function getSeat(user) {
     }
   } else {
     const [{ id: resvId, devId, labId }] = reserves;
+    // 判断预定是为今日
+    const [today] = reserves[0].start.split(' ');
+    if (today !== moment().format('YYYY-MM-DD')) {
+      logger.error(`the user:${user.id} the reserve is not today's.`);
+      return;
+    }
     const info = { resvId, devId, labId };
     // 占座 预约时间调到20分钟后
     info.start = start;
