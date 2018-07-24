@@ -146,22 +146,24 @@ async function getSeat(user) {
     info.start = start;
     info.end = end;
     ({ success, msg } = await occupy(session, info));
-    if (!success) {
+    if (success) {
+      logger.info(`the user:${user.id} change a reserve successfully`);
+    } else if (msg.includes('预约时间不能少于')) {
+      logger.error(`the user:${user.id} fail to change a reserve. Error:${msg}`);
+    } else {
       logger.error(`the user:${user.id} fail to change a reserve. Error:${msg}`);
       ({ success, msg } = await delResv(session, info.resvId));
       if (!success) {
         logger.error(`the user:${user.id} fail to delete a reserve. Error:${msg}`);
       }
       logger.info(`the user:${user.id} delete a reserve successfully`);
-    } else {
-      logger.info(`the user:${user.id} change a reserve successfully`);
     }
   }
 }
 
 async function index() {
   const startTime = moment().format('YYYY-MM-DD 06:59');
-  const endTime = moment().format('YYYY-MM-DD 21:30');
+  const endTime = moment().format('YYYY-MM-DD 21:36');
   // 是否为图书馆开馆时间
   if (!moment().isBetween(startTime, endTime, 'minute')) {
     // logger.warn('the library is close,system end');
