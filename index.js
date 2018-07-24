@@ -160,7 +160,7 @@ async function getSeat(user) {
 }
 
 async function index() {
-  const startTime = moment().format('YYYY-MM-DD 06:59');
+  const startTime = moment().format('YYYY-MM-DD 05:59');
   const endTime = moment().format('YYYY-MM-DD 21:26');
   // 是否为图书馆开馆时间
   if (!moment().isBetween(startTime, endTime, 'minute')) {
