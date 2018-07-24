@@ -148,8 +148,6 @@ async function getSeat(user) {
     ({ success, msg } = await occupy(session, info));
     if (success) {
       logger.info(`the user:${user.id} change a reserve successfully`);
-    } else if (msg.includes('预约时间不能少于')) {
-      logger.error(`the user:${user.id} fail to change a reserve. Error:${msg}`);
     } else {
       logger.error(`the user:${user.id} fail to change a reserve. Error:${msg}`);
       ({ success, msg } = await delResv(session, info.resvId));
@@ -163,7 +161,7 @@ async function getSeat(user) {
 
 async function index() {
   const startTime = moment().format('YYYY-MM-DD 06:59');
-  const endTime = moment().format('YYYY-MM-DD 21:36');
+  const endTime = moment().format('YYYY-MM-DD 21:26');
   // 是否为图书馆开馆时间
   if (!moment().isBetween(startTime, endTime, 'minute')) {
     // logger.warn('the library is close,system end');
@@ -187,7 +185,6 @@ schedule.scheduleJob('*/5 * * * *', async () => {
   await index();
 });
 
-// TODO:9点半释放
 // TODO:devid转换
 // TODO:调剂
 // TODO:可视化界面
