@@ -91,18 +91,42 @@ async function occupy(session, {
   return { success: true, msg: '' };
 }
 
+/**
+ *预约座位
+ *
+ * @param {*} user
+ * @param {*} session
+ * @param {*} start
+ * @param {*} end
+ */
+async function reserve(user, session, start, end) {
+  const { devId, labId } = user;
+  const { success, msg } = await occupy(session, {
+    resvId: '',
+    devId,
+    labId,
+    start,
+    end,
+  });
+  if (success) {
+    logger.info(`${user.id} reserves a new seat successfully in ${start}`);
+  } else {
+    logger.error(`${user.id} fail to reserve a new seat. Error:${msg}`);
+  }
+}
+
 async function getSeat(user) {
   // 登陆 获取session
   let { success, msg } = await login(user);
   if (!success) {
-    logger.error(`the user:${user.id} login error,system end. Error:${msg}`);
+    logger.error(`${user.id} login error,system end. Error:${msg}`);
     return;
   }
   const session = msg;
   // 获取预约信息
   ({ success, msg } = await getResvInfo(session));
   if (!success) {
-    logger.error(`the user:${user.id} getResvInfo error,system end. Error:${msg}`);
+    logger.error(`${user.id} getResvInfo error,system end. Error:${msg}`);
     return;
   }
   const reserves = msg;
@@ -114,53 +138,59 @@ async function getSeat(user) {
     start = startReal;
   }
   const end = moment().format('YYYY-MM-DD 22:30');
-  // 是否已经预约
-  if (reserves.length === 0) {
-    // 预约座位
-    const { devId, labId } = user;
-    ({ success, msg } = await occupy(session, {
-      resvId: '',
-      devId,
-      labId,
-      start,
-      end,
-    }));
-    if (success) {
-      logger.info(`the user:${user.id} reserves a new seat successfully`);
-    } else if (!msg.includes('预约')) {
-      logger.error(`the user:${user.id} fail to reserve a new seat. Error:${msg}`);
-      await getSeat(user);
-    } else {
-      logger.error(`the user:${user.id} fail to reserve a new seat. Error:${msg}`);
-    }
-  } else {
-    const [{ id: resvId, devId, labId }] = reserves;
-    // 判断预定是为今日
-    const [today] = reserves[0].start.split(' ');
-    if (today !== moment().format('YYYY-MM-DD')) {
-      logger.error(`the user:${user.id} the reserve is not today's.`);
-      return;
-    }
+  // 获取今日预约
+  const reserveOfToday = reserves.find((reservation) => {
+    const [today] = reservation.start.split(' ');
+    return today === moment().format('YYYY-MM-DD');
+  });
+  if (reserveOfToday) {
+    const { id: resvId, devId, labId } = reserveOfToday;
     const info = { resvId, devId, labId };
     // 占座 预约时间调到20分钟后
     info.start = start;
     info.end = end;
     ({ success, msg } = await occupy(session, info));
     if (success) {
-      logger.info(`the user:${user.id} change a reserve successfully`);
+      logger.info(`${user.id} change a reserve successfully`);
     } else {
-      logger.error(`the user:${user.id} fail to change a reserve. Error:${msg}`);
+      logger.error(`${user.id} fail to change a reserve. Error:${msg}`);
       ({ success, msg } = await delResv(session, info.resvId));
       if (!success) {
-        logger.error(`the user:${user.id} fail to delete a reserve. Error:${msg}`);
+        logger.error(`${user.id} fail to delete a reserve. Error:${msg}`);
       }
-      logger.info(`the user:${user.id} delete a reserve successfully`);
+      logger.info(`${user.id} delete a reserve successfully`);
     }
+  } else {
+    // 预约今日座位
+    await reserve(user, session, start, end);
+  }
+  // 获取明日预约
+  const reserveOfTomorrow = reserves.find((reservation) => {
+    const [today] = reservation.start.split(' ');
+    return (
+      today
+      === moment()
+        .add(1, 'd')
+        .format('YYYY-MM-DD')
+    );
+  });
+  if (!reserveOfTomorrow) {
+    // 预约明日座位
+    await reserve(
+      user,
+      session,
+      moment(start)
+        .add(1, 'd')
+        .format('YYYY-MM-DD 07:30'),
+      moment(end)
+        .add(1, 'd')
+        .format('YYYY-MM-DD HH:mm'),
+    );
   }
 }
 
 async function index() {
-  const startTime = moment().format('YYYY-MM-DD 05:59');
+  const startTime = moment().format('YYYY-MM-DD 06:59');
   const endTime = moment().format('YYYY-MM-DD 21:26');
   // 是否为图书馆开馆时间
   if (!moment().isBetween(startTime, endTime, 'minute')) {
@@ -188,4 +218,3 @@ schedule.scheduleJob('*/5 * * * *', async () => {
 // TODO:devid转换
 // TODO:调剂
 // TODO:可视化界面
-// TODO:前一天预约
