@@ -11,6 +11,7 @@ log4js.configure({
       filename: 'logs/application.log',
       compress: true,
       keepFileExt: true,
+      daysToKeep: 3,
     },
     console: { type: 'console' },
   },
