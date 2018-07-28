@@ -1,5 +1,7 @@
 module.exports = [
   {
+    // 是否开启
+    enable: true,
     // 账号
     id: '',
     // 密码
