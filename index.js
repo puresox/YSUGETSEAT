@@ -201,7 +201,9 @@ async function index() {
   logger.info('----------------------------------------------------------------------------');
   const getSeatPromises = [];
   config.forEach((user) => {
-    getSeatPromises.push(getSeat(user));
+    if (user.enable) {
+      getSeatPromises.push(getSeat(user));
+    }
   });
   await Promise.all(getSeatPromises);
   logger.info('----------------------------------------------------------------------------');
