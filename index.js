@@ -153,6 +153,8 @@ async function getSeat(user) {
     ({ success, msg } = await occupy(session, info));
     if (success) {
       logger.info(`${user.id} change a reserve successfully`);
+    } else if (moment(start).isBefore(reserveOfToday.start, 'minute')) {
+      logger.info(`${user.id} not need to change a reserve`);
     } else {
       logger.error(`${user.id} fail to change a reserve. Error:${msg}`);
       ({ success, msg } = await delResv(session, info.resvId));
