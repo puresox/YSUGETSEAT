@@ -152,7 +152,7 @@ async function getSeat(user) {
     info.end = end;
     ({ success, msg } = await occupy(session, info));
     if (success) {
-      logger.info(`${user.id} change a reserve successfully`);
+      // logger.info(`${user.id} change a reserve successfully`);
     } else if (moment(start).isBefore(reserveOfToday.start, 'minute')) {
       logger.warn(`${user.id} not need to change a reserve`);
     } else if (reserveOfToday.end !== end) {
@@ -210,6 +210,7 @@ async function index() {
     }
   });
   await Promise.all(getSeatPromises);
+  logger.info('all user change a reserve successfully');
   logger.info('----------------------------------------------------------------------------');
 }
 
