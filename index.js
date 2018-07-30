@@ -131,20 +131,18 @@ async function getSeat(user) {
     return;
   }
   const reserves = msg;
-  const startReal = moment().format('YYYY-MM-DD 07:30');
-  let start = moment()
+  // 设置开始结束时间
+  const start = moment()
     .add(20, 'm')
     .format('YYYY-MM-DD HH:mm');
-  if (moment(start).isBefore(startReal, 'minute')) {
-    start = startReal;
-  }
   const end = moment().format('YYYY-MM-DD 22:30');
   // 获取今日预约
   const reserveOfToday = reserves.find((reservation) => {
     const [today] = reservation.start.split(' ');
     return today === moment().format('YYYY-MM-DD');
   });
-  if (reserveOfToday) {
+  // 修改预约状态
+  if (reserveOfToday && moment(start).isAfter(reserveOfToday.start, 'minute')) {
     const { id: resvId, devId, labId } = reserveOfToday;
     const info = { resvId, devId, labId };
     // 占座 预约时间调到20分钟后
@@ -153,8 +151,6 @@ async function getSeat(user) {
     ({ success, msg } = await occupy(session, info));
     if (success) {
       // logger.info(`${user.id} change a reserve successfully`);
-    } else if (moment(start).isBefore(reserveOfToday.start, 'minute')) {
-      logger.warn(`${user.id} not need to change a reserve`);
     } else if (reserveOfToday.end !== end) {
       logger.warn(`${user.id} DIY a reserve`);
     } else {
@@ -210,7 +206,6 @@ async function index() {
     }
   });
   await Promise.all(getSeatPromises);
-  logger.info('all user change a reserve successfully');
   logger.info('----------------------------------------------------------------------------');
 }
 
