@@ -161,7 +161,7 @@ async function getSeat(user) {
       }
       logger.info(`${user.id} delete a reserve successfully`);
     }
-  } else {
+  } else if (!reserveOfToday) {
     // 预约今日座位
     await reserve(user, session, start, end);
   }
