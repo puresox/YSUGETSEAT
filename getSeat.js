@@ -99,6 +99,7 @@ async function reserve(user, session, start, end) {
 }
 
 async function getSeat(user) {
+  const endTime = moment().format('YYYY-MM-DD 21:26');
   // 登陆 获取session
   let { success, msg } = await login(user);
   if (!success) {
@@ -124,7 +125,7 @@ async function getSeat(user) {
     return today === moment().format('YYYY-MM-DD');
   });
   // 修改预约状态
-  if (reserveOfToday && moment(start).isAfter(reserveOfToday.start, 'minute')) {
+  if (reserveOfToday && moment(start).isBetween(reserveOfToday.start, endTime, 'minute')) {
     const { id: resvId, devId, labId } = reserveOfToday;
     const info = { resvId, devId, labId };
     // 占座 预约时间调到20分钟后
@@ -144,7 +145,7 @@ async function getSeat(user) {
         ({ success, msg } = await delResv(user, session, info.resvId));
       }
     }
-  } else if (!reserveOfToday) {
+  } else if (!reserveOfToday && moment().isBefore(moment().format('YYYY-MM-DD 21:00'), 'minute')) {
     // 预约今日座位
     await reserve(user, session, start, end);
   }
@@ -158,7 +159,7 @@ async function getSeat(user) {
         .format('YYYY-MM-DD')
     );
   });
-  if (!reserveOfTomorrow) {
+  if (!reserveOfTomorrow && moment().isAfter(moment().format('YYYY-MM-DD 7:00'), 'minute')) {
     // 预约明日座位
     await reserve(
       user,
@@ -174,13 +175,6 @@ async function getSeat(user) {
 }
 
 async function index() {
-  const startTime = moment().format('YYYY-MM-DD 06:59');
-  const endTime = moment().format('YYYY-MM-DD 21:26');
-  // 是否为图书馆开馆时间
-  if (!moment().isBetween(startTime, endTime, 'minute')) {
-    // logger.warn('the library is close,system end');
-    return;
-  }
   logger.info('----------------------------------------------------------------------------');
   const getSeatPromises = [];
   const users = findUsers();
