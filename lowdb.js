@@ -29,9 +29,5 @@ exports.findUserById = id => db
   .find({ id })
   .value();
 
-// update user
-exports.updateUser = (id, enable, deleteAuto) => db
-  .get('users')
-  .find({ id })
-  .assign({ enable, deleteAuto })
-  .write();
+// find user
+exports.findUser = id => db.get('users').find({ id });

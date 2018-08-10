@@ -53,6 +53,28 @@ async function delResv(user, session, resvId) {
   logger.info(`${user.id} delete a reserve successfully`);
 }
 
+async function delAllResv(user) {
+  // 登陆 获取session
+  let { success, msg } = await login(user);
+  if (!success) {
+    logger.error(`${user.id} login error,system end. Error:${msg}`);
+    return;
+  }
+  const session = msg;
+  // 获取预约信息
+  ({ success, msg } = await getResvInfo(session));
+  if (!success) {
+    logger.error(`${user.id} getResvInfo error,system end. Error:${msg}`);
+    return;
+  }
+  const reserves = msg;
+  const reservesPromises = [];
+  reserves.forEach(({ id }) => {
+    reservesPromises.push(delResv(user, session, id));
+  });
+  await Promise.all(reservesPromises);
+}
+
 /**
  *修改预约信息占座
  *
@@ -136,11 +158,10 @@ async function getSeat(user) {
     ({ success, msg } = await occupy(session, info));
     if (success) {
       // logger.info(`${user.id} change a reserve successfully`);
+    } else if (user.deleteAuto === true) {
+      await delResv(user, session, info.resvId);
     } else {
       logger.error(`${user.id} fail to change a reserve. Error:${msg}`);
-      if (user.deleteAuto === true) {
-        await delResv(user, session, info.resvId);
-      }
     }
   } else if (!reserveOfToday && moment().isBefore(moment().format('YYYY-MM-DD 21:00'), 'minute')) {
     // 预约今日座位
@@ -184,3 +205,4 @@ async function index() {
 }
 
 exports.getSeat = index;
+exports.delAllResv = delAllResv;

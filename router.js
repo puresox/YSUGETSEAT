@@ -1,7 +1,8 @@
 const Router = require('koa-router');
 const { checkNotSignIn, checkHasSignIn } = require('./middlewares/check.js');
 const { cookie } = require('./config/config.js');
-const { findUserById, updateUser } = require('./lowdb.js');
+const { findUserById, findUser } = require('./lowdb.js');
+const { delAllResv } = require('./getSeat.js');
 
 const router = new Router();
 
@@ -41,8 +42,12 @@ router
     } else {
       deleteAuto = false;
     }
-    updateUser(userid, enable, deleteAuto);
-    // TODO:删除预约
+    const user = findUser(userid);
+    const userValue = user.value();
+    if (userValue.enable === true && enable === false) {
+      await delAllResv(userValue);
+    }
+    user.assign({ enable, deleteAuto }).write();
     // TODO:flash
     await ctx.redirect('/');
   });
