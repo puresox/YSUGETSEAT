@@ -138,11 +138,8 @@ async function getSeat(user) {
       // logger.info(`${user.id} change a reserve successfully`);
     } else {
       logger.error(`${user.id} fail to change a reserve. Error:${msg}`);
-      if (
-        user.deleteAuto === true
-        && moment().isAfter(moment().format('YYYY-MM-DD 21:11'), 'minute')
-      ) {
-        ({ success, msg } = await delResv(user, session, info.resvId));
+      if (user.deleteAuto === true) {
+        await delResv(user, session, info.resvId);
       }
     }
   } else if (!reserveOfToday && moment().isBefore(moment().format('YYYY-MM-DD 21:00'), 'minute')) {
