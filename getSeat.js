@@ -172,7 +172,6 @@ async function getSeat(user) {
 }
 
 async function index() {
-  logger.info('----------------------------------------------------------------------------');
   const getSeatPromises = [];
   const users = findUsers();
   users.forEach((user) => {
