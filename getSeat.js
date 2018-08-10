@@ -99,7 +99,6 @@ async function reserve(user, session, start, end) {
 }
 
 async function getSeat(user) {
-  const endTime = moment().format('YYYY-MM-DD 21:26');
   // 登陆 获取session
   let { success, msg } = await login(user);
   if (!success) {
@@ -125,17 +124,18 @@ async function getSeat(user) {
     return today === moment().format('YYYY-MM-DD');
   });
   // 修改预约状态
-  if (reserveOfToday && moment(start).isBetween(reserveOfToday.start, endTime, 'minute')) {
+  if (
+    reserveOfToday
+    && moment(start).isBetween(reserveOfToday.start, reserveOfToday.end, 'minute')
+  ) {
     const { id: resvId, devId, labId } = reserveOfToday;
     const info = { resvId, devId, labId };
     // 占座 预约时间调到20分钟后
     info.start = start;
-    info.end = end;
+    info.end = reserveOfToday.end;
     ({ success, msg } = await occupy(session, info));
     if (success) {
       // logger.info(`${user.id} change a reserve successfully`);
-    } else if (reserveOfToday.end !== end) {
-      logger.warn(`${user.id} DIY a reserve`);
     } else {
       logger.error(`${user.id} fail to change a reserve. Error:${msg}`);
       if (
@@ -159,7 +159,7 @@ async function getSeat(user) {
         .format('YYYY-MM-DD')
     );
   });
-  if (!reserveOfTomorrow && moment().isAfter(moment().format('YYYY-MM-DD 7:00'), 'minute')) {
+  if (!reserveOfTomorrow && moment().isAfter(moment().format('YYYY-MM-DD 07:00'), 'minute')) {
     // 预约明日座位
     await reserve(
       user,
