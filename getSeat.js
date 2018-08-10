@@ -177,7 +177,7 @@ async function getSeat(user) {
         .format('YYYY-MM-DD')
     );
   });
-  if (!reserveOfTomorrow && moment().isAfter(moment().format('YYYY-MM-DD 07:00'), 'minute')) {
+  if (!reserveOfTomorrow && moment().isAfter(moment().format('YYYY-MM-DD 22:00'), 'minute')) {
     // 预约明日座位
     await reserve(
       user,
