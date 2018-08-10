@@ -182,7 +182,7 @@ async function getSeat(user) {
     await reserve(
       user,
       session,
-      moment(start)
+      moment()
         .add(1, 'd')
         .format('YYYY-MM-DD 07:30'),
       moment(end)
