@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.bootcss.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet">
+
+  <title>燕山大学图书馆找人</title>
+</head>
+
+<body>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">姓名</th>
+                <th scope="col">座位</th>
+                <th scope="col">开始时间</th>
+                <th scope="col">结束时间</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% userList.forEach(({name,owner,start,end}) => {%>
+                <tr>
+                  <td>
+                    <%= owner %>
+                  </td>
+                  <td>
+                    <%= name %>
+                  </td>
+                  <td>
+                    <%= start %>
+                  </td>
+                  <td>@
+                    <%= end %>
+                  </td>
+                </tr>
+                <%});%>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.slim.min.js"></script>
+  <script src="https://cdn.bootcss.com/popper.js/1.14.3/umd/popper.min.js"></script>
+  <script src="https://cdn.bootcss.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+</body>
+
+</html>

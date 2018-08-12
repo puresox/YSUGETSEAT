@@ -102,4 +102,80 @@ router
     }
   });
 
+// /findUser
+router
+  .get('/findUser', async (ctx) => {
+    const { success, msg } = await getRooms();
+    if (success) {
+      const rooms = msg;
+      await ctx.render('findUser', {
+        rooms,
+      });
+    } else {
+      await ctx.redirect('back');
+    }
+  })
+  .post('/findUserByRoom', async (ctx) => {
+    const { roomId } = ctx.request.body;
+    const { success, msg } = await getRoomStatus(roomId);
+    if (success) {
+      const seats = msg;
+      const userList = [];
+      seats.forEach(({ name, ts }) => {
+        ts.forEach(({ owner, start, end }) => {
+          userList.push({
+            name,
+            owner,
+            start,
+            end,
+          });
+        });
+      });
+      await ctx.render('userList', {
+        userList,
+      });
+    } else {
+      await ctx.redirect('back');
+    }
+  })
+  .post('/findUserByName', async (ctx) => {
+    const { name: userName } = ctx.request.body;
+    const userList = [];
+    let { success, msg } = await getRooms();
+    if (success) {
+      const rooms = msg;
+      const findUserPromises = [];
+      rooms.forEach(({ id }) => {
+        findUserPromises.push(
+          (async () => {
+            ({ success, msg } = await getRoomStatus(id));
+            if (success) {
+              const seats = msg;
+              seats.forEach(({ name, ts }) => {
+                ts.forEach(({ owner, start, end }) => {
+                  if (userName === owner) {
+                    userList.push({
+                      name,
+                      owner,
+                      start,
+                      end,
+                    });
+                  }
+                });
+              });
+            } else {
+              await ctx.redirect('back');
+            }
+          })(),
+        );
+      });
+      await Promise.all(findUserPromises);
+      await ctx.render('userList', {
+        userList,
+      });
+    } else {
+      await ctx.redirect('back');
+    }
+  });
+
 module.exports = router;
