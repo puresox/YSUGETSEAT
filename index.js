@@ -39,8 +39,6 @@ schedule.scheduleJob('*/5 * * * *', async () => {
   await getSeat();
 });
 
-// TODO:devid转换
-// TODO:可视化界面
 // TODO:座位数量监控
 // TODO:开始结束时间
 // TODO:调剂
