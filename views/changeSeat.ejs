@@ -9,7 +9,7 @@
   <!-- Bootstrap CSS -->
   <link href="https://cdn.bootcss.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet">
 
-  <title>燕山大学图书馆占座登录</title>
+  <title>燕山大学图书馆占座设置</title>
 </head>
 
 <body>
@@ -21,16 +21,29 @@
         <br>
         <br>
         <br>
-        <form method="POST" action="/signin">
+        <form method="POST" action="/changeSeat">
+          <h1>你好
+            <%= name %>
+          </h1>
+          <h2>当前选中座位：
+            <br>
+            <%= seat %>
+          </h2>
           <div class="form-group">
-            <label for="id">学号ID</label>
-            <input type="text" class="form-control" id="id" name="id" placeholder="输入学号">
+            <label for="roomId">选择阅览室</label>
+            <select class="form-control" id="roomId" name="roomId">
+              <% rooms.forEach(({name:roomName,id}) => {%>
+                <option value="<%= id %>">
+                  <%= roomName %>
+                </option>
+                <%});%>
+            </select>
           </div>
           <div class="form-group">
-            <label for="pwd">密码</label>
-            <input type="password" class="form-control" id="pwd" name="pwd" placeholder="输入密码">
+            <label for="dev">座位号</label>
+            <input type="text" class="form-control" id="dev" name="dev" placeholder="输入座位号">
           </div>
-          <button type="submit" class="btn btn-lg btn-primary btn-block">登录</button>
+          <button type="submit" class="btn btn-lg btn-primary btn-block">保存</button>
         </form>
       </div>
     </div>

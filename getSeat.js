@@ -38,6 +38,43 @@ async function getResvInfo(session) {
 }
 
 /**
+ *获取阅览室列表
+ *
+ * @returns
+ */
+async function getRooms() {
+  const getRoomsUrl = `http://seat.ysu.edu.cn/ClientWeb/pro/ajax/room.aspx?classkind=8&date=${moment().format(
+    'YYYY-MM-DD',
+  )}&start=${moment().format('HH:mm')}&end=${moment()
+    .add(60, 'm')
+    .format('HH:mm')}&act=get_rm_sta&_nocache=1534001491105`;
+  const { data } = await axios.get(getRoomsUrl);
+  if (data.ret !== 1) {
+    return { success: false, msg: data.msg };
+  }
+  return { success: true, msg: data.data };
+}
+
+/**
+ *获取一个阅览室的座位
+ *
+ * @param {*} roomId
+ * @returns
+ */
+async function getRoomStatus(roomId) {
+  const getRoomStatusUrl = `http://seat.ysu.edu.cn/ClientWeb/pro/ajax/device.aspx?room_id=${roomId}&date=${moment().format(
+    'YYYY-MM-DD',
+  )}&act=get_rsv_sta&fr_start=${moment().format('HH:mm')}&fr_end=${moment()
+    .add(60, 'm')
+    .format('HH:mm')}&_nocache=1534047543589`;
+  const { data } = await axios.get(getRoomStatusUrl);
+  if (data.ret !== 1) {
+    return { success: false, msg: data.msg };
+  }
+  return { success: true, msg: data.data };
+}
+
+/**
  *删除预约
  *
  * @param {*} resvId
@@ -53,6 +90,12 @@ async function delResv(user, session, resvId) {
   logger.info(`${user.id} delete a reserve successfully`);
 }
 
+/**
+ *删除该用户所有预约
+ *
+ * @param {*} user
+ * @returns
+ */
 async function delAllResv(user) {
   // 登陆 获取session
   let { success, msg } = await login(user);
@@ -206,3 +249,5 @@ async function index() {
 
 exports.getSeat = index;
 exports.delAllResv = delAllResv;
+exports.getRooms = getRooms;
+exports.getRoomStatus = getRoomStatus;

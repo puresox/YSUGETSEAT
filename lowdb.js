@@ -31,3 +31,8 @@ exports.findUserById = id => db
 
 // find user
 exports.findUser = id => db.get('users').find({ id });
+
+exports.findSeatById = devId => db
+  .get('users')
+  .find({ devId })
+  .value();

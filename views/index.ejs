@@ -15,7 +15,7 @@
 <body>
   <div class="container">
     <div class="row justify-content-center">
-      <div class="col-4">
+      <div class="col">
         <br>
         <br>
         <br>
@@ -44,6 +44,11 @@
           </div>
           <button type="submit" class="btn btn-lg btn-primary btn-block">保存</button>
         </form>
+        <h2>当前选中座位：
+          <br>
+          <%= seat %>
+        </h2>
+        <a href="/changeSeat" class="btn btn-lg btn-primary btn-block active" role="button" aria-pressed="true">修改座位</a>
       </div>
     </div>
   </div>
