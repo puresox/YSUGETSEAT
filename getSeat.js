@@ -86,8 +86,9 @@ async function delResv(user, session, resvId) {
   });
   if (data.ret !== 1) {
     logger.error(`${user.id} fail to delete a reserve. Error:${data.msg}`);
+  } else {
+    logger.info(`${user.id} delete a reserve successfully`);
   }
-  logger.info(`${user.id} delete a reserve successfully`);
 }
 
 /**
