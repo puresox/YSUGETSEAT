@@ -1,7 +1,9 @@
 const Router = require('koa-router');
 const { checkNotSignIn, checkHasSignIn } = require('./middlewares/check.js');
 const { cookie } = require('./config/config.js');
-const { findUserById, findUser, findSeatById } = require('./lowdb.js');
+const {
+  findUserById, findUser, findSeatById, findStusByName,
+} = require('./lowdb.js');
 const { delAllResv, getRooms, getRoomStatus } = require('./getSeat.js');
 
 const router = new Router();
@@ -182,6 +184,14 @@ router
 router.get('/logout', checkHasSignIn, async (ctx) => {
   ctx.cookies.set('id', null);
   await ctx.redirect('/');
+});
+
+// /getStuDetail
+router.get('/getStuDetail/:name', checkHasSignIn, async (ctx) => {
+  const stus = await findStusByName(ctx.params.name);
+  await ctx.render('stuDetail', {
+    stus,
+  });
 });
 
 module.exports = router;

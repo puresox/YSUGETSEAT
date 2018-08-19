@@ -9,7 +9,7 @@
   <!-- Bootstrap CSS -->
   <link href="https://cdn.bootcss.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet">
 
-  <title>燕山大学图书馆找人</title>
+  <title>燕山大学图书馆找人详细信息</title>
 </head>
 
 <body>
@@ -21,35 +21,39 @@
             <table class="table table-striped">
               <thead>
                 <tr>
+                  <th scope="col">学号</th>
                   <th scope="col">姓名</th>
-                  <th scope="col">座位</th>
-                  <th scope="col">开始时间</th>
-                  <th scope="col">结束时间</th>
+                  <th scope="col">班级</th>
+                  <th scope="col">专业</th>
+                  <th scope="col">学院</th>
                 </tr>
               </thead>
               <tbody>
-                <% userList.forEach(({name,owner,start,end}) => {%>
+                <% stus.forEach(({XH,XM,XZB,ZYMC,XY}) => {%>
                   <tr>
                     <td>
-                      <a href="/getStuDetail/<%= owner %>"><%= owner %></a>
+                      <%= XH %>
                     </td>
                     <td>
-                      <%= name %>
+                      <%= XM %>
                     </td>
                     <td>
-                      <%= start %>
+                      <%= XZB %>
                     </td>
                     <td>
-                      <%= end %>
+                      <%= ZYMC %>
+                    </td>
+                    <td>
+                      <%= XY %>
                     </td>
                   </tr>
                   <%});%>
               </tbody>
             </table>
           </div>
-          <% if (userList.length ===0 ) {%>
+          <% if (stus.length ===0 ) {%>
             <br>
-            <h1>查无此人</h1>
+            <h1>可能是研究生或者留级生</h1>
             <%}%>
         </div>
       </div>
