@@ -104,7 +104,7 @@ router
 
 // /findUser
 router
-  .get('/findUser', async (ctx) => {
+  .get('/findUser', checkHasSignIn, async (ctx) => {
     const { success, msg } = await getRooms();
     if (success) {
       const rooms = msg;
@@ -115,7 +115,7 @@ router
       await ctx.redirect('back');
     }
   })
-  .post('/findUserByRoom', async (ctx) => {
+  .post('/findUserByRoom', checkHasSignIn, async (ctx) => {
     const { roomId } = ctx.request.body;
     const { success, msg } = await getRoomStatus(roomId);
     if (success) {
@@ -138,7 +138,7 @@ router
       await ctx.redirect('back');
     }
   })
-  .post('/findUserByName', async (ctx) => {
+  .post('/findUserByName', checkHasSignIn, async (ctx) => {
     const { name: userName } = ctx.request.body;
     const userList = [];
     let { success, msg } = await getRooms();
@@ -177,5 +177,11 @@ router
       await ctx.redirect('back');
     }
   });
+
+// /logout
+router.get('/logout', checkHasSignIn, async (ctx) => {
+  ctx.cookies.set('id', null);
+  await ctx.redirect('/');
+});
 
 module.exports = router;

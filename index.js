@@ -32,6 +32,10 @@ app.use(router.routes()).use(router.allowedMethods());
 app.listen(port);
 logger.info(`system start,listened on ${port}`);
 
+app.on('error', (err) => {
+  logger.error(err.message);
+});
+
 getSeat();
 
 // 5分钟一次

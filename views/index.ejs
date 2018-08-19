@@ -14,44 +14,43 @@
 
 <body>
   <div class="container">
-    <div class="row justify-content-center">
-      <div class="col">
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-        <form method="POST" action="/">
-          <h1>你好
-            <%= name %>
-          </h1>
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="enable" id="enable" name="enable" <% if (enable) { %>
-            <%= "checked" %>
-              <% } %>>
-                <label class="form-check-label" for="checkbox">
-                  占座开关：选中表示占座，不选择表示不占座
-                </label>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="deleteAuto" id="deleteAuto" name="deleteAuto" <% if (deleteAuto) {
-              %>
-            <%= "checked" %>
-              <% } %>>
-                <label class="form-check-label" for="checkbox">
-                  是否自动释放：选中表示自动释放，不选择表示不自动释放(自动释放包括出错自动释放和提前一小时释放)
-                </label>
-          </div>
-          <button type="submit" class="btn btn-lg btn-primary btn-block">保存</button>
-        </form>
-        <h2>当前选中座位：
+    <%- include('./components/navbar'); %>
+      <div class="row justify-content-center">
+        <div class="col">
           <br>
-          <%= seat %>
-        </h2>
-        <a href="/changeSeat" class="btn btn-lg btn-primary btn-block active" role="button" aria-pressed="true">修改座位</a>
-        <a href="/findUser" class="btn btn-lg btn-primary btn-block active" role="button" aria-pressed="true">座位找人</a>
+          <br>
+          <br>
+          <br>
+          <br>
+          <form method="POST" action="/">
+            <h1>你好
+              <%= name %>
+            </h1>
+            <h2>当前选中座位：
+              <br>
+              <%= seat %>
+            </h2>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="enable" id="enable" name="enable" <% if (enable) { %>
+              <%= "checked" %>
+                <% } %>>
+                  <label class="form-check-label" for="checkbox">
+                    占座开关：选中表示占座，不选择表示不占座
+                  </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="deleteAuto" id="deleteAuto" name="deleteAuto" <% if (deleteAuto) {
+                %>
+              <%= "checked" %>
+                <% } %>>
+                  <label class="form-check-label" for="checkbox">
+                    是否自动释放：选中表示自动释放，不选择表示不自动释放(自动释放包括出错自动释放和提前一小时释放)
+                  </label>
+            </div>
+            <button type="submit" class="btn btn-lg btn-primary btn-block">保存</button>
+          </form>
+        </div>
       </div>
-    </div>
   </div>
 
   <!-- Optional JavaScript -->

@@ -5,7 +5,7 @@ log4js.configure({
     app: {
       type: 'dateFile',
       filename: 'logs/application.log',
-      compress: true,
+      // compress: true,
       keepFileExt: true,
       daysToKeep: 3,
     },
