@@ -16,7 +16,7 @@ router
   .post('/signin', checkNotSignIn, async (ctx) => {
     const { id, pwd } = ctx.request.body;
     const user = findUserById(id);
-    if (user.pwd !== pwd) {
+    if (!user || user.pwd !== pwd) {
       await ctx.redirect('/signin');
     } else {
       ctx.cookies.set('id', id, cookie);
