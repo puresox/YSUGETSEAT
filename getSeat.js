@@ -183,12 +183,12 @@ async function getSeat(user) {
   const start = moment()
     .add(20, 'm')
     .format('YYYY-MM-DD HH:mm');
-  const end = moment().format('YYYY-MM-DD 22:30');
-  // 获取今日预约
-  const reserveOfToday = reserves.find((reservation) => {
-    const [today] = reservation.start.split(' ');
-    return today === moment().format('YYYY-MM-DD');
-  });
+  const end = moment()
+    .add(20, 'm')
+    .add(15, 'h')
+    .format('YYYY-MM-DD HH:mm');
+  // 获取预约
+  const reserveOfToday = reserves[0];
   // 修改预约状态
   if (
     reserveOfToday
@@ -207,32 +207,9 @@ async function getSeat(user) {
     } else {
       logger.error(`${user.id} fail to change a reserve. Error:${msg}`);
     }
-  } else if (!reserveOfToday && moment().isBefore(moment().format('YYYY-MM-DD 21:00'), 'minute')) {
+  } else if (!reserveOfToday) {
     // 预约今日座位
     await reserve(user, session, start, end);
-  }
-  // 获取明日预约
-  const reserveOfTomorrow = reserves.find((reservation) => {
-    const [today] = reservation.start.split(' ');
-    return (
-      today
-      === moment()
-        .add(1, 'd')
-        .format('YYYY-MM-DD')
-    );
-  });
-  if (!reserveOfTomorrow && moment().isAfter(moment().format('YYYY-MM-DD 22:00'), 'minute')) {
-    // 预约明日座位
-    await reserve(
-      user,
-      session,
-      moment()
-        .add(1, 'd')
-        .format('YYYY-MM-DD 07:30'),
-      moment(end)
-        .add(1, 'd')
-        .format('YYYY-MM-DD HH:mm'),
-    );
   }
 }
 
