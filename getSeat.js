@@ -214,6 +214,15 @@ async function getSeat(user) {
 }
 
 async function index() {
+  if (
+    !moment().isBetween(
+      moment().format('YYYY-MM-DD 06:20'),
+      moment().format('YYYY-MM-DD 22:30'),
+      'minute',
+    )
+  ) {
+    return;
+  }
   const getSeatPromises = [];
   const users = findUsers();
   users.forEach((user) => {
@@ -222,7 +231,7 @@ async function index() {
     }
   });
   await Promise.all(getSeatPromises);
-  logger.info('----------------------------------------------------------------------------');
+  // logger.info('----------------------------------------------------------------------------');
 }
 
 exports.getSeat = index;
