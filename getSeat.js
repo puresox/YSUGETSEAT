@@ -200,6 +200,7 @@ async function getSeat(user) {
     if (success) {
       // logger.info(`${user.id} change a reserve successfully`);
     } else if (user.deleteAuto === true) {
+      logger.error(`${user.id} fail to change a reserve. Error:${msg}`);
       await delResv(user, session, info.resvId);
     } else {
       logger.error(`${user.id} fail to change a reserve. Error:${msg}`);
