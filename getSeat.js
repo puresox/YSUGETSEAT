@@ -239,3 +239,4 @@ exports.getSeat = index;
 exports.delAllResv = delAllResv;
 exports.getRooms = getRooms;
 exports.getRoomStatus = getRoomStatus;
+exports.getSeatImmediately = getSeat;

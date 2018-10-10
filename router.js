@@ -4,7 +4,9 @@ const { cookie } = require('./config/config.js');
 const {
   findUserById, findUser, findSeatById, findStusByName,
 } = require('./lowdb.js');
-const { delAllResv, getRooms, getRoomStatus } = require('./getSeat.js');
+const {
+  getSeatImmediately, delAllResv, getRooms, getRoomStatus,
+} = require('./getSeat.js');
 
 const router = new Router();
 
@@ -55,6 +57,8 @@ router
     const userValue = user.value();
     if (userValue.enable === true && enable === false) {
       await delAllResv(userValue);
+    } else if (userValue.enable === false && enable === true) {
+      getSeatImmediately(userValue);
     }
     user.assign({ enable, deleteAuto }).write();
     // TODO:flash
