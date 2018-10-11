@@ -15,48 +15,48 @@
 <body>
   <div class="container">
     <%- include('./components/navbar'); %>
-      <div class="row justify-content-center">
-        <div class="col">
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th scope="col">学号</th>
-                  <th scope="col">姓名</th>
-                  <th scope="col">班级</th>
-                  <th scope="col">专业</th>
-                  <th scope="col">学院</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% stus.forEach(({XH,XM,XZB,ZYMC,XY}) => {%>
-                  <tr>
-                    <td>
-                      <%= XH %>
-                    </td>
-                    <td>
-                      <%= XM %>
-                    </td>
-                    <td>
-                      <%= XZB %>
-                    </td>
-                    <td>
-                      <%= ZYMC %>
-                    </td>
-                    <td>
-                      <%= XY %>
-                    </td>
-                  </tr>
-                  <%});%>
-              </tbody>
-            </table>
-          </div>
-          <% if (stus.length ===0 ) {%>
-            <br>
-            <h1>可能是研究生或者留级生</h1>
-            <%}%>
+    <div class="row justify-content-center">
+      <div class="col">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">学号</th>
+                <th scope="col">姓名</th>
+                <th scope="col">班级</th>
+                <th scope="col">专业</th>
+                <th scope="col">学院</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% stus.forEach(({XH,XM,XZB,ZYMC,XY}) => {%>
+              <tr>
+                <td>
+                  <%= XH %>
+                </td>
+                <td>
+                  <%= XM %>
+                </td>
+                <td>
+                  <%= XZB %>
+                </td>
+                <td>
+                  <%= ZYMC %>
+                </td>
+                <td>
+                  <%= XY %>
+                </td>
+              </tr>
+              <%});%>
+            </tbody>
+          </table>
         </div>
+        <% if (stus.length ===0 ) {%>
+        <br>
+        <h1>数据库信息不足</h1>
+        <%}%>
       </div>
+    </div>
   </div>
 
   <!-- Optional JavaScript -->
