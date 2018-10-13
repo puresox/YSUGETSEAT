@@ -10,4 +10,5 @@ module.exports = {
     httpOnly: true,
     signed: true,
   },
+  adminKey: '',
 };

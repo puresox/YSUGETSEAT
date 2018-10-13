@@ -16,7 +16,7 @@ async function login({ id, pwd }) {
     const {
       'set-cookie': [session],
     } = headers;
-    return { success: true, msg: session };
+    return { success: true, msg: session, name: data.data.name };
   }
   return { success: false, msg: data.msg };
 }
@@ -240,3 +240,4 @@ exports.delAllResv = delAllResv;
 exports.getRooms = getRooms;
 exports.getRoomStatus = getRoomStatus;
 exports.getSeatImmediately = getSeat;
+exports.login = login;

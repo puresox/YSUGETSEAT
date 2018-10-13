@@ -7,7 +7,7 @@
       <br>
       <br>
       <br>
-      <form method="POST" action="/signin">
+      <form method="POST" action="/signup">
         <div class="form-group">
           <label for="id">学号ID</label>
           <input type="text" class="form-control" id="id" name="id" placeholder="输入学号">
@@ -16,10 +16,14 @@
           <label for="pwd">密码</label>
           <input type="password" class="form-control" id="pwd" name="pwd" placeholder="输入密码">
         </div>
-        <button type="submit" class="btn btn-lg btn-primary btn-block">登录</button>
+        <div class="form-group">
+          <label for="adminpwd">管理员确认密码</label>
+          <input type="password" class="form-control" id="adminpwd" name="adminpwd" placeholder="输入管理员确认密码">
+        </div>
+        <button type="submit" class="btn btn-lg btn-primary btn-block">注册</button>
       </form>
       <br>
-      <a class="btn btn-lg btn-outline-primary btn-block" href="/signup" role="button">注册</a>
+      <a class="btn btn-lg btn-outline-primary btn-block" href="/signin" role="button">登录</a>
     </div>
   </div>
 </div>

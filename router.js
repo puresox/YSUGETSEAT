@@ -1,14 +1,41 @@
 const Router = require('koa-router');
 const { checkNotSignIn, checkHasSignIn } = require('./middlewares/check.js');
-const { cookie } = require('./config/config.js');
+const { cookie, adminKey } = require('./config/config.js');
 const {
-  findUserById, findUser, findSeatById, findStusByName,
+  createUser, findUserById, findUser, findSeatById, findStusByName,
 } = require('./lowdb.js');
 const {
-  getSeatImmediately, delAllResv, getRooms, getRoomStatus,
+  getSeatImmediately, delAllResv, getRooms, getRoomStatus, login,
 } = require('./getSeat.js');
 
 const router = new Router();
+
+// /signup
+router
+  .get('/signup', checkNotSignIn, async (ctx) => {
+    await ctx.render('signup');
+  })
+  .post('/signup', checkNotSignIn, async (ctx) => {
+    const { id, pwd, adminpwd } = ctx.request.body;
+    const user = findUserById(id);
+    const { success, name } = await login({ id, pwd });
+    if (adminKey !== adminpwd || user || !success) {
+      await ctx.redirect('/signup');
+    } else {
+      createUser({
+        enable: false,
+        id,
+        pwd,
+        devId: '',
+        labId: '',
+        deleteAuto: false,
+        name,
+        seat: '',
+      });
+      ctx.cookies.set('id', id, cookie);
+      await ctx.redirect('/');
+    }
+  });
 
 // /signin
 router
@@ -30,15 +57,20 @@ router
 router
   .get('/', checkHasSignIn, async (ctx) => {
     const { userid } = ctx;
-    const {
-      enable, deleteAuto, name, seat,
-    } = findUserById(userid);
-    await ctx.render('index', {
-      enable,
-      deleteAuto,
-      name,
-      seat,
-    });
+    const user = findUserById(userid);
+    if (!user) {
+      await ctx.redirect('/logout');
+    } else {
+      const {
+        enable, deleteAuto, name, seat,
+      } = user;
+      await ctx.render('index', {
+        enable,
+        deleteAuto,
+        name,
+        seat,
+      });
+    }
   })
   .post('/', checkHasSignIn, async (ctx) => {
     const { userid } = ctx;
