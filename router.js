@@ -13,7 +13,7 @@ const router = new Router();
 // /signin
 router
   .get('/signin', checkNotSignIn, async (ctx) => {
-    await ctx.render('signin.html');
+    await ctx.render('signin');
   })
   .post('/signin', checkNotSignIn, async (ctx) => {
     const { id, pwd } = ctx.request.body;

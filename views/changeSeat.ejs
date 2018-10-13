@@ -1,60 +1,38 @@
-<!doctype html>
-<html lang="en">
-
-<head>
-  <!-- Required meta tags -->
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.bootcss.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet">
-
-  <title>燕山大学图书馆占座设置</title>
-</head>
-
-<body>
-  <div class="container">
-    <%- include('./components/navbar'); %>
-      <div class="row justify-content-center">
-        <div class="col">
+<%- include('./components/header'); %>
+<div class="container">
+  <%- include('./components/navbar'); %>
+  <div class="row justify-content-center">
+    <div class="col">
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <form method="POST" action="/changeSeat">
+        <h1>你好
+          <%= name %>
+        </h1>
+        <h2>当前选中座位：
           <br>
-          <br>
-          <br>
-          <br>
-          <br>
-          <form method="POST" action="/changeSeat">
-            <h1>你好
-              <%= name %>
-            </h1>
-            <h2>当前选中座位：
-              <br>
-              <%= seat %>
-            </h2>
-            <div class="form-group">
-              <label for="roomId">选择阅览室</label>
-              <select class="form-control" id="roomId" name="roomId">
-                <% rooms.forEach(({name:roomName,id}) => {%>
-                  <option value="<%= id %>">
-                    <%= roomName %>
-                  </option>
-                  <%});%>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="dev">座位号</label>
-              <input type="text" class="form-control" id="dev" name="dev" placeholder="输入座位号">
-            </div>
-            <button type="submit" class="btn btn-lg btn-primary btn-block">保存</button>
-          </form>
+          <%= seat %>
+        </h2>
+        <div class="form-group">
+          <label for="roomId">选择阅览室</label>
+          <select class="form-control" id="roomId" name="roomId">
+            <% rooms.forEach(({name:roomName,id}) => {%>
+            <option value="<%= id %>">
+              <%= roomName %>
+            </option>
+            <%});%>
+          </select>
         </div>
-      </div>
+        <div class="form-group">
+          <label for="dev">座位号</label>
+          <input type="text" class="form-control" id="dev" name="dev" placeholder="输入座位号">
+        </div>
+        <button type="submit" class="btn btn-lg btn-primary btn-block">保存</button>
+      </form>
+    </div>
   </div>
-
-  <!-- Optional JavaScript -->
-  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.slim.min.js"></script>
-  <script src="https://cdn.bootcss.com/popper.js/1.14.3/umd/popper.min.js"></script>
-  <script src="https://cdn.bootcss.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
-</body>
-
-</html>
+</div>
+<%- include('./components/footer'); %>
