@@ -6,6 +6,7 @@ const changeSeat = require('./routers/changeSeat');
 const findUser = require('./routers/findUser');
 const logout = require('./routers/logout');
 const getStuDetail = require('./routers/getStuDetail');
+const quickResvSeat = require('./routers/quickResvSeat');
 
 const router = new Router();
 
@@ -16,5 +17,6 @@ router.use('/changeSeat', changeSeat.routes(), changeSeat.allowedMethods());
 router.use('/findUser', findUser.routes(), findUser.allowedMethods());
 router.use('/logout', logout.routes(), logout.allowedMethods());
 router.use('/getStuDetail', getStuDetail.routes(), getStuDetail.allowedMethods());
+router.use('/quickResvSeat', quickResvSeat.routes(), quickResvSeat.allowedMethods());
 
 module.exports = router;

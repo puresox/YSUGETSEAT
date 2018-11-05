@@ -164,6 +164,37 @@ async function reserve(user, session, start, end) {
   }
 }
 
+/**
+ *快速预约(先删除座位,再预约座位)
+ *
+ * @param {*} user
+ * @returns
+ */
+async function quickResvSeat(user, startTime) {
+  // 登陆 获取session
+  let { success, msg } = await login(user);
+  if (!success) {
+    logger.error(`${user.id} login error,system end. Error:${msg}`);
+    return;
+  }
+  const session = msg;
+  // 获取预约信息
+  ({ success, msg } = await getResvInfo(session));
+  if (!success) {
+    logger.error(`${user.id} getResvInfo error,system end. Error:${msg}`);
+    return;
+  }
+  const reserves = msg;
+  const reservesPromises = [];
+  // 删除座位
+  reserves.forEach(({ id }) => {
+    reservesPromises.push(delResv(user, session, id));
+  });
+  await Promise.all(reservesPromises);
+  // 预约座位
+  await reserve(user, session, startTime, moment().format('YYYY-MM-DD 22:30'));
+}
+
 async function getSeat(user) {
   // 登陆 获取session
   let { success, msg } = await login(user);
@@ -241,3 +272,4 @@ exports.getRooms = getRooms;
 exports.getRoomStatus = getRoomStatus;
 exports.getSeatImmediately = getSeat;
 exports.login = login;
+exports.quickResvSeat = quickResvSeat;
