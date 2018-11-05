@@ -9,7 +9,7 @@
       <br>
       <br>
       <!-- 通过阅览室找 -->
-      <form method="POST" action="/findUserByRoom">
+      <form method="GET" action="/findUser/room">
         <div class="form-group">
           <label for="roomId">选择阅览室</label>
           <select class="form-control" id="roomId" name="roomId">
@@ -24,7 +24,7 @@
       </form>
       <br>
       <!-- 通过姓名查找 -->
-      <form method="POST" action="/findUserByName">
+      <form method="GET" action="/findUser/name">
         <div class="form-group">
           <label for="name">姓名</label>
           <input type="text" class="form-control" id="name" name="name" placeholder="输入姓名">
