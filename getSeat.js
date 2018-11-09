@@ -1,7 +1,7 @@
 const axios = require('axios');
 const moment = require('moment');
 const { logger } = require('./logger');
-const { findUsers } = require('./lowdb.js');
+const { findUsers, findUser } = require('./lowdb.js');
 
 /**
  *登录获取session
@@ -159,9 +159,10 @@ async function reserve(user, session, start, end) {
   });
   if (success) {
     logger.info(`${user.id} reserves a new seat successfully in ${start}`);
-  } else {
-    logger.error(`${user.id} fail to reserve a new seat. Error:${msg}`);
+    return { success: true, msg: '' };
   }
+  logger.error(`${user.id} fail to reserve a new seat. Error:${msg}`);
+  return { success: false, msg };
 }
 
 /**
@@ -196,25 +197,44 @@ async function quickResvSeat(user, startTime) {
 }
 
 async function getSeat(user) {
-  // 登陆 获取session
-  let { success, msg } = await login(user);
-  if (!success) {
-    logger.error(`${user.id} login error,system end. Error:${msg}`);
-    return;
-  }
-  const session = msg;
-  // 获取预约信息
-  ({ success, msg } = await getResvInfo(session));
-  if (!success) {
-    logger.error(`${user.id} getResvInfo error,system end. Error:${msg}`);
-    return;
-  }
-  const reserves = msg;
+  const userModel = findUser(user.id);
+
   // 设置开始结束时间
   let start = moment()
     .add(20, 'm')
     .format('YYYY-MM-DD HH:mm');
   const end = moment().format('YYYY-MM-DD 22:30');
+
+  // 获取session
+  let { session } = user;
+  if (!session) {
+    const { success, msg } = await login(user);
+    if (success) {
+      userModel.assign({ session: msg }).write();
+      session = msg;
+    } else {
+      logger.error(`${user.id} login error,system end. Error:${msg}`);
+      return;
+    }
+  }
+  // 06:30预约
+  const nowTime = moment().format('HH:mm');
+  if (nowTime === '06:30') {
+    let { success, msg } = await reserve(user, session, moment().format('YYYY-MM-DD 07:30'), end);
+    if (!success && msg.includes('登录')) {
+      ({ success, msg } = await login(user));
+      userModel.assign({ session: msg }).write();
+      await getSeat(user);
+    }
+    return;
+  }
+  // 获取预约信息
+  let { success, msg } = await getResvInfo(session);
+  if (!success) {
+    logger.error(`${user.id} getResvInfo error,system end. Error:${msg}`);
+    return;
+  }
+  const reserves = msg;
   // 获取预约
   const reserveOfToday = reserves[0];
   // 修改预约状态
@@ -233,8 +253,13 @@ async function getSeat(user) {
     } else if (user.deleteAuto === true) {
       logger.error(`${user.id} fail to change a reserve. Error:${msg}`);
       await delResv(user, session, info.resvId);
+      // await reserve(user, session, start, end);
     } else {
       logger.error(`${user.id} fail to change a reserve. Error:${msg}`);
+      // if (!msg.includes('1小时')) {
+      //   await delResv(user, session, info.resvId);
+      //   await reserve(user, session, start, end);
+      // }
     }
   } else if (!reserveOfToday && moment().isBefore(moment().format('YYYY-MM-DD 21:00'), 'minute')) {
     // 预约今日座位

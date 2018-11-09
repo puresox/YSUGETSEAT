@@ -14,7 +14,7 @@ router
   .post('/', checkNotSignIn, async (ctx) => {
     const { id, pwd, adminpwd } = ctx.request.body;
     const user = findUserById(id);
-    const { success, name } = await login({ id, pwd });
+    const { success, msg: session, name } = await login({ id, pwd });
     if (adminKey !== adminpwd || user || !success) {
       await ctx.redirect('/signup');
     } else {
@@ -27,6 +27,7 @@ router
         deleteAuto: false,
         name,
         seat: '',
+        session,
       });
       ctx.cookies.set('id', id, cookie);
       await ctx.redirect('/');
