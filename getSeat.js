@@ -222,6 +222,7 @@ async function getSeat(user) {
   if (nowTime === '06:30') {
     let { success, msg } = await reserve(user, session, moment().format('YYYY-MM-DD 07:30'), end);
     if (!success && msg.includes('登录')) {
+      logger.error(`${user.id} session失效. Error:${msg}`);
       ({ success, msg } = await login(user));
       userModel.assign({ session: msg }).write();
       await getSeat(user);
@@ -230,7 +231,12 @@ async function getSeat(user) {
   }
   // 获取预约信息
   let { success, msg } = await getResvInfo(session);
-  if (!success) {
+  if (!success && msg.includes('登录')) {
+    logger.error(`${user.id} session失效. Error:${msg}`);
+    ({ success, msg } = await login(user));
+    userModel.assign({ session: msg }).write();
+    await getSeat(user);
+  } else if (!success) {
     logger.error(`${user.id} getResvInfo error,system end. Error:${msg}`);
     return;
   }
