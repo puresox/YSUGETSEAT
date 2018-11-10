@@ -225,7 +225,9 @@ async function getSeat(user) {
       logger.error(`${user.id} session失效. Error:${msg}`);
       ({ success, msg } = await login(user));
       userModel.assign({ session: msg }).write();
-      await getSeat(user);
+      const newUser = user;
+      newUser.session = msg;
+      await getSeat(newUser);
     }
     return;
   }
@@ -235,7 +237,9 @@ async function getSeat(user) {
     logger.error(`${user.id} session失效. Error:${msg}`);
     ({ success, msg } = await login(user));
     userModel.assign({ session: msg }).write();
-    await getSeat(user);
+    const newUser = user;
+    newUser.session = msg;
+    await getSeat(newUser);
   } else if (!success) {
     logger.error(`${user.id} getResvInfo error,system end. Error:${msg}`);
     return;
