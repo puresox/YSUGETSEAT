@@ -22,6 +22,22 @@ async function login({ id, pwd }) {
 }
 
 /**
+ *重新登录刷新session
+ *
+ * @returns
+ */
+async function reLogin(session) {
+  const loginUrl = 'http://seat.ysu.edu.cn/ClientWeb/pro/ajax/login.aspx?act=login&id=@relogin&pwd=&role=512&aliuserid=&schoolcode=&wxuserid=&_nocache=1541949437657';
+  const { data } = await axios.get(loginUrl, {
+    headers: { Cookie: session },
+  });
+  if (data.ret !== 1) {
+    return { success: false, msg: data.msg };
+  }
+  return { success: true, msg: data.data };
+}
+
+/**
  *获取预约信息
  *
  * @returns
@@ -224,6 +240,10 @@ async function getSeat(user) {
     if (!success && msg.includes('登录')) {
       logger.error(`${user.id} session失效. Error:${msg}`);
       ({ success, msg } = await login(user));
+      if (!success) {
+        logger.error(`${user.id} login error,system end. Error:${msg}`);
+        return;
+      }
       userModel.assign({ session: msg }).write();
       const newUser = user;
       newUser.session = msg;
@@ -231,11 +251,32 @@ async function getSeat(user) {
     }
     return;
   }
-  // 获取预约信息
-  let { success, msg } = await getResvInfo(session);
+
+  // 刷新登录信息
+  let { success, msg } = await reLogin(session);
   if (!success && msg.includes('登录')) {
     logger.error(`${user.id} session失效. Error:${msg}`);
     ({ success, msg } = await login(user));
+    if (!success) {
+      logger.error(`${user.id} login error,system end. Error:${msg}`);
+      return;
+    }
+    userModel.assign({ session: msg }).write();
+    session = msg;
+  } else if (!success) {
+    logger.error(`${user.id} login error,system end. Error:${msg}`);
+    return;
+  }
+
+  // 获取预约信息
+  ({ success, msg } = await getResvInfo(session));
+  if (!success && msg.includes('登录')) {
+    logger.error(`${user.id} session失效. Error:${msg}`);
+    ({ success, msg } = await login(user));
+    if (!success) {
+      logger.error(`${user.id} login error,system end. Error:${msg}`);
+      return;
+    }
     userModel.assign({ session: msg }).write();
     const newUser = user;
     newUser.session = msg;
