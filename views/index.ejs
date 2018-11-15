@@ -5,16 +5,16 @@
     <div class="col">
       <br>
       <br>
-      <br>
       <!-- 选座开关表单 -->
       <form method="POST" action="/">
         <h1>你好
           <%= name %>
         </h1>
-        <h2>当前选中座位：
-          <br>
+        <h4>下次将预约：
           <%= seat %>
-        </h2>
+        </h4>
+        <h4>当前已预约：
+        </h4>
         <div class="form-check">
           <input class="form-check-input" type="checkbox" value="enable" id="enable" name="enable" <% if (enable) { %>
           <%= "checked" %>
@@ -30,6 +30,15 @@
           <% } %>>
           <label class="form-check-label" for="checkbox">
             自动释放：选中表示自动释放，不选择表示不自动释放(自动释放包括出错自动释放和提前一小时释放)
+          </label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="adjust" id="adjust" name="adjust" <% if
+            (adjust) { %>
+          <%= "checked" %>
+          <% } %>>
+          <label class="form-check-label" for="checkbox">
+            室内调剂：选中表示接受室内调剂，不选择表示不室内调剂(室内调剂是在占座失败时自动预约同一阅览室其他空座位)
           </label>
         </div>
         <button type="submit" class="btn btn-lg btn-primary btn-block">保存</button>

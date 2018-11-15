@@ -173,7 +173,8 @@ async function occupy(session, {
  */
 async function reserve(user, session, start, end) {
   const { devId, labId } = user;
-  const { success, msg } = await occupy(session, {
+  let { roomId } = user;
+  let { success, msg } = await occupy(session, {
     resvId: '',
     devId,
     labId,
@@ -184,7 +185,35 @@ async function reserve(user, session, start, end) {
     logger.info(`${user.id} reserves a new seat successfully in ${start}`);
     return { success: true, msg: '' };
   }
-  logger.error(`${user.id} fail to reserve a new seat. Error:${msg}`);
+  // 调剂
+  if (!success && msg.includes('冲突') && user.adjust) {
+    // 获取roomId
+    if (!roomId) {
+      ({ success, msg } = await getRooms());
+      if (success) {
+        const [seatName] = user.seat.split('-');
+        const rooms = msg;
+        const room = rooms.find(({ name }) => name.includes(seatName));
+        ({ id: roomId } = room);
+        // 保存
+        const userModel = findUser(user.id);
+        userModel.assign({ roomId }).write();
+      }
+    }
+    // 获取空座位
+    ({ success, msg } = await getRoomStatus(roomId));
+    if (success) {
+      const seats = msg;
+      const seat = seats.find(({ ts }) => ts.length === 0);
+      if (seat) {
+        const newUser = user;
+        newUser.devId = seat.devId;
+        newUser.labId = seat.labId;
+        await reserve(newUser, session, start, end);
+      }
+    }
+  }
+  logger.error(`${user.id} fail to reserve a new seat.`);
   return { success: false, msg };
 }
 
@@ -242,6 +271,16 @@ async function getSeat(user) {
 
   // 获取session
   let { session } = user;
+  if (!session) {
+    const { success, msg } = await login(user);
+    if (success) {
+      userModel.assign({ session: msg }).write();
+      session = msg;
+    } else {
+      logger.error(`${user.id} login error,system end. Error:${msg}`);
+      return;
+    }
+  }
   // 06:30预约
   const nowTime = moment().format('HH:mm');
   if (nowTime === '06:30') {

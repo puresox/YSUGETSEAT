@@ -12,7 +12,17 @@ users.defaults({ users: [] }).write();
 
 // Add a post
 exports.createUser = ({
-  enable, id, pwd, devId, labId, deleteAuto, name, seat, session,
+  enable,
+  id,
+  pwd,
+  devId,
+  labId,
+  roomId,
+  deleteAuto,
+  name,
+  seat,
+  session,
+  adjust,
 }) => users
   .get('users')
   .push({
@@ -21,10 +31,12 @@ exports.createUser = ({
     pwd,
     devId,
     labId,
+    roomId,
     deleteAuto,
     name,
     seat,
     session,
+    adjust,
   })
   .write();
 

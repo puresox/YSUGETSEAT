@@ -24,10 +24,12 @@ router
         pwd,
         devId: '',
         labId: '',
+        roomId: '',
         deleteAuto: false,
         name,
         seat: '',
         session,
+        adjust: true,
       });
       ctx.cookies.set('id', id, cookie);
       await ctx.redirect('/');

@@ -34,7 +34,14 @@ router
         const otherUser = findSeatById(devId);
         if (!otherUser || otherUser.id === userid) {
           const user = findUser(userid);
-          user.assign({ seat: name, devId, labId }).write();
+          user
+            .assign({
+              seat: name,
+              devId,
+              labId,
+              roomId,
+            })
+            .write();
           // TODO:flash
           await ctx.redirect('/');
         } else {

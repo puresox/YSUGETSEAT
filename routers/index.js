@@ -14,19 +14,20 @@ router
       await ctx.redirect('/logout');
     } else {
       const {
-        enable, deleteAuto, name, seat,
+        enable, deleteAuto, name, seat, adjust,
       } = user;
       await ctx.render('index', {
         enable,
         deleteAuto,
         name,
         seat,
+        adjust,
       });
     }
   })
   .post('/', checkHasSignIn, async (ctx) => {
     const { userid } = ctx;
-    let { enable, deleteAuto } = ctx.request.body;
+    let { enable, deleteAuto, adjust } = ctx.request.body;
     if (enable === 'enable') {
       enable = true;
     } else {
@@ -37,6 +38,11 @@ router
     } else {
       deleteAuto = false;
     }
+    if (adjust === 'adjust') {
+      adjust = true;
+    } else {
+      adjust = false;
+    }
     const user = findUser(userid);
     const userValue = user.value();
     if (userValue.enable === true && enable === false) {
@@ -44,7 +50,7 @@ router
     } else if (userValue.enable === false && enable === true) {
       getSeatImmediately(userValue);
     }
-    user.assign({ enable, deleteAuto }).write();
+    user.assign({ enable, deleteAuto, adjust }).write();
     // TODO:flash
     await ctx.redirect('/');
   });
