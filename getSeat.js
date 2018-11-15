@@ -6,6 +6,7 @@ const { findUsers, findUser } = require('./lowdb.js');
 /**
  *登录获取session
  *
+ * 仅返回错误信息
  * @returns
  */
 async function login({ id, pwd }) {
@@ -32,9 +33,10 @@ async function reLogin(session, userModel) {
     headers: { Cookie: session },
   });
   if (data.ret !== 1) {
+    logger.error(`reLogin error, try to login. Error:${data.msg}`);
     const { success, msg } = await login(userModel.value());
     if (!success) {
-      return { success: false };
+      return { success: false, msg };
     }
     userModel.assign({ session: msg }).write();
     return { success: true, msg };
@@ -302,11 +304,11 @@ async function getSeat(user) {
 
   // 刷新登录信息
   let { success, msg } = await reLogin(session, userModel);
-  session = msg;
   if (!success) {
     logger.error(`${user.id} login error,system end. Error:${msg}`);
     return;
   }
+  session = msg;
 
   // 获取预约信息
   ({ success, msg } = await getResvInfo(session));
