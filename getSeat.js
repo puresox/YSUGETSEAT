@@ -22,19 +22,24 @@ async function login({ id, pwd }) {
 }
 
 /**
- *重新登录刷新session
+ *刷新登录状态
  *
  * @returns
  */
-async function reLogin(session) {
+async function reLogin(session, userModel) {
   const loginUrl = 'http://seat.ysu.edu.cn/ClientWeb/pro/ajax/login.aspx?act=login&id=@relogin&pwd=&role=512&aliuserid=&schoolcode=&wxuserid=&_nocache=1541949437657';
   const { data } = await axios.get(loginUrl, {
     headers: { Cookie: session },
   });
   if (data.ret !== 1) {
-    return { success: false, msg: data.msg };
+    const { success, msg } = await login(userModel.value());
+    if (!success) {
+      return { success: false };
+    }
+    userModel.assign({ session: msg }).write();
+    return { success: true, msg };
   }
-  return { success: true, msg: data.data };
+  return { success: true, msg: session };
 }
 
 /**
@@ -114,13 +119,15 @@ async function delResv(user, session, resvId) {
  * @returns
  */
 async function delAllResv(user) {
-  // 登陆 获取session
-  let { success, msg } = await login(user);
+  const userModel = findUser(user.id);
+  let { session } = userModel.value();
+  // 刷新登陆
+  let { success, msg } = await reLogin(session, userModel);
   if (!success) {
     logger.error(`${user.id} login error,system end. Error:${msg}`);
     return;
   }
-  const session = msg;
+  session = msg;
   // 获取预约信息
   ({ success, msg } = await getResvInfo(session));
   if (!success) {
@@ -182,19 +189,21 @@ async function reserve(user, session, start, end) {
 }
 
 /**
- *快速预约(先删除座位,再预约座位)
+ *快速修改预约
  *
  * @param {*} user
  * @returns
  */
 async function quickResvSeat(user, startTime) {
-  // 登陆 获取session
-  let { success, msg } = await login(user);
+  const userModel = findUser(user.id);
+  let { session } = userModel.value();
+  // 刷新登陆
+  let { success, msg } = await reLogin(session, userModel);
   if (!success) {
     logger.error(`${user.id} login error,system end. Error:${msg}`);
     return;
   }
-  const session = msg;
+  session = msg;
   // 获取预约信息
   ({ success, msg } = await getResvInfo(session));
   if (!success) {
@@ -202,14 +211,24 @@ async function quickResvSeat(user, startTime) {
     return;
   }
   const reserves = msg;
-  const reservesPromises = [];
-  // 删除座位
-  reserves.forEach(({ id }) => {
-    reservesPromises.push(delResv(user, session, id));
-  });
-  await Promise.all(reservesPromises);
-  // 预约座位
-  await reserve(user, session, startTime, moment().format('YYYY-MM-DD 22:30'));
+  // 获取预约
+  const reserveOfToday = reserves[0];
+  const { id: resvId, devId, labId } = reserveOfToday;
+  const info = { resvId, devId, labId };
+  // 占座 预约时间调到选定时间
+  info.start = startTime;
+  info.end = reserveOfToday.end;
+  ({ success, msg } = await occupy(session, info));
+  if (!success) {
+    const reservesPromises = [];
+    // 删除座位
+    reserves.forEach(({ id }) => {
+      reservesPromises.push(delResv(user, session, id));
+    });
+    await Promise.all(reservesPromises);
+    // 预约座位
+    await reserve(user, session, startTime, moment().format('YYYY-MM-DD 22:30'));
+  }
 }
 
 async function getSeat(user) {
@@ -223,16 +242,6 @@ async function getSeat(user) {
 
   // 获取session
   let { session } = user;
-  if (!session) {
-    const { success, msg } = await login(user);
-    if (success) {
-      userModel.assign({ session: msg }).write();
-      session = msg;
-    } else {
-      logger.error(`${user.id} login error,system end. Error:${msg}`);
-      return;
-    }
-  }
   // 06:30预约
   const nowTime = moment().format('HH:mm');
   if (nowTime === '06:30') {
@@ -253,35 +262,16 @@ async function getSeat(user) {
   }
 
   // 刷新登录信息
-  let { success, msg } = await reLogin(session);
-  if (!success && msg.includes('登录')) {
-    logger.error(`${user.id} session失效. Error:${msg}`);
-    ({ success, msg } = await login(user));
-    if (!success) {
-      logger.error(`${user.id} login error,system end. Error:${msg}`);
-      return;
-    }
-    userModel.assign({ session: msg }).write();
-    session = msg;
-  } else if (!success) {
+  let { success, msg } = await reLogin(session, userModel);
+  session = msg;
+  if (!success) {
     logger.error(`${user.id} login error,system end. Error:${msg}`);
     return;
   }
 
   // 获取预约信息
   ({ success, msg } = await getResvInfo(session));
-  if (!success && msg.includes('登录')) {
-    logger.error(`${user.id} session失效. Error:${msg}`);
-    ({ success, msg } = await login(user));
-    if (!success) {
-      logger.error(`${user.id} login error,system end. Error:${msg}`);
-      return;
-    }
-    userModel.assign({ session: msg }).write();
-    const newUser = user;
-    newUser.session = msg;
-    await getSeat(newUser);
-  } else if (!success) {
+  if (!success) {
     logger.error(`${user.id} getResvInfo error,system end. Error:${msg}`);
     return;
   }
