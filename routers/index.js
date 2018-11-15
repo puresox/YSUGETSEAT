@@ -1,7 +1,9 @@
 const Router = require('koa-router');
 const { checkHasSignIn } = require('../middlewares/check.js');
-const { findUserById, findUser } = require('../lowdb.js');
-const { getSeatImmediately, delAllResv } = require('../getSeat.js');
+const { findUser } = require('../lowdb.js');
+const {
+  getSeatImmediately, delAllResv, reLogin, getResvInfo,
+} = require('../getSeat.js');
 
 const router = new Router();
 
@@ -9,16 +11,25 @@ const router = new Router();
 router
   .get('/', checkHasSignIn, async (ctx) => {
     const { userid } = ctx;
-    const user = findUserById(userid);
+    const userModel = findUser(userid);
+    const user = userModel.value();
     if (!user) {
       await ctx.redirect('/logout');
     } else {
+      const { msg: session } = await reLogin(user.session, userModel);
+      const { msg: reserves } = await getResvInfo(session);
+      let devName = '';
+      // 获取预约
+      if (reserves.length !== 0) {
+        [{ devName }] = reserves;
+      }
       const {
         enable, deleteAuto, name, seat, adjust,
       } = user;
       await ctx.render('index', {
         enable,
         deleteAuto,
+        devName,
         name,
         seat,
         adjust,

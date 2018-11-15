@@ -378,3 +378,5 @@ exports.getRoomStatus = getRoomStatus;
 exports.getSeatImmediately = getSeat;
 exports.login = login;
 exports.quickResvSeat = quickResvSeat;
+exports.reLogin = reLogin;
+exports.getResvInfo = getResvInfo;

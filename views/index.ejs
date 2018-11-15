@@ -10,10 +10,21 @@
         <h1>你好
           <%= name %>
         </h1>
-        <h4>下次将预约：
-          <%= seat %>
+        <h4>
+        <% if (seat) { %>
+        下次将预约：
+        <%= seat %>
+        <% } else { %>
+        未选择下次预约
+        <% } %>
         </h4>
-        <h4>当前已预约：
+        <h4>
+        <% if (devName) { %>
+        当前已预约：
+        <%= devName %>
+        <% } else { %>
+        当前无座位
+        <% } %>
         </h4>
         <div class="form-check">
           <input class="form-check-input" type="checkbox" value="enable" id="enable" name="enable" <% if (enable) { %>
