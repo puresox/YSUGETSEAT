@@ -126,7 +126,7 @@ async function delAllResv(user) {
   // 刷新登陆
   let { success, msg } = await reLogin(session, userModel);
   if (!success) {
-    logger.error(`${user.id} login error,system end. Error:${msg}`);
+    logger.error(`${user.id} reLogin error,system end. Error:${msg}`);
     return;
   }
   session = msg;
@@ -231,7 +231,7 @@ async function quickResvSeat(user, startTime) {
   // 刷新登陆
   let { success, msg } = await reLogin(session, userModel);
   if (!success) {
-    logger.error(`${user.id} login error,system end. Error:${msg}`);
+    logger.error(`${user.id} reLogin error,system end. Error:${msg}`);
     return;
   }
   session = msg;
@@ -288,7 +288,7 @@ async function getSeat(user) {
   if (nowTime === '06:30') {
     let { success, msg } = await reserve(user, session, moment().format('YYYY-MM-DD 07:30'), end);
     if (!success && msg.includes('登录')) {
-      logger.error(`${user.id} session失效. Error:${msg}`);
+      logger.error(`${user.id} session is out of date. Error:${msg}`);
       ({ success, msg } = await login(user));
       if (!success) {
         logger.error(`${user.id} login error,system end. Error:${msg}`);
@@ -305,7 +305,7 @@ async function getSeat(user) {
   // 刷新登录信息
   let { success, msg } = await reLogin(session, userModel);
   if (!success) {
-    logger.error(`${user.id} login error,system end. Error:${msg}`);
+    logger.error(`${user.id} reLogin error,system end. Error:${msg}`);
     return;
   }
   session = msg;
@@ -333,7 +333,7 @@ async function getSeat(user) {
     if (success) {
       // logger.info(`${user.id} change a reserve successfully`);
     } else if (user.deleteAuto === true) {
-      logger.error(`${user.id} fail to change a reserve. Error:${msg}`);
+      logger.error(`${user.id} fail to change a reserve, try to delete it. Error:${msg}`);
       await delResv(user, session, info.resvId);
       // await reserve(user, session, start, end);
     } else {
