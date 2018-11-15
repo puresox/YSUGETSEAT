@@ -337,7 +337,7 @@ async function getSeat(user) {
       await delResv(user, session, info.resvId);
       // await reserve(user, session, start, end);
     } else {
-      logger.error(`${user.id} fail to change a reserve. Error:${msg}`);
+      logger.error(`${user.id} fail to change a reserve, but i will not do anything. Error:${msg}`);
       // if (!msg.includes('1小时')) {
       //   await delResv(user, session, info.resvId);
       //   await reserve(user, session, start, end);
