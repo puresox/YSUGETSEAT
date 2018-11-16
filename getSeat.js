@@ -208,7 +208,7 @@ async function reserve(user, session, start, end) {
       const seats = msg;
       const seat = seats.find(({ ts }) => ts.length === 0);
       if (seat) {
-        const newUser = user;
+        const newUser = Array.from(user);
         newUser.devId = seat.devId;
         newUser.labId = seat.labId;
         newUser.seat = seat.name;
@@ -297,7 +297,7 @@ async function getSeat(user) {
         return;
       }
       userModel.assign({ session: msg }).write();
-      const newUser = user;
+      const newUser = Array.from(user);
       newUser.session = msg;
       await getSeat(newUser);
     }
