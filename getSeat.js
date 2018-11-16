@@ -33,7 +33,7 @@ async function reLogin(session, userModel) {
     headers: { Cookie: session },
   });
   if (data.ret !== 1) {
-    logger.error(`reLogin error, try to login. Error:${data.msg}`);
+    logger.error(`${userModel.value().id} reLogin error, try to login. Error:${data.msg}`);
     const { success, msg } = await login(userModel.value());
     if (!success) {
       return { success: false, msg };
@@ -184,7 +184,7 @@ async function reserve(user, session, start, end) {
     end,
   });
   if (success) {
-    logger.info(`${user.id} reserves a new seat successfully in ${start}`);
+    logger.info(`${user.id} reserves a new seat ${user.seat} successfully`);
     return { success: true, msg: '' };
   }
   // 调剂
@@ -211,11 +211,13 @@ async function reserve(user, session, start, end) {
         const newUser = user;
         newUser.devId = seat.devId;
         newUser.labId = seat.labId;
+        newUser.seat = seat.name;
+        logger.error(`${user.id} fail to reserves the seat ${user.seat}, try to ${newUser.seat}.`);
         await reserve(newUser, session, start, end);
       }
     }
   }
-  logger.error(`${user.id} fail to reserve a new seat. Error:${msg}`);
+  logger.error(`${user.id} fail to reserve a new seat ${user.seat}. Error:${msg}`);
   return { success: false, msg };
 }
 
