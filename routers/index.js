@@ -58,7 +58,7 @@ router
     const userValue = user.value();
     if (userValue.enable === true && enable === false) {
       await delAllResv(userValue);
-    } else if (userValue.enable === false && enable === true) {
+    } else if (enable === true) {
       getSeatImmediately(userValue);
     }
     user.assign({ enable, deleteAuto, adjust }).write();
