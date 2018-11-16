@@ -1,10 +1,11 @@
 const Koa = require('koa');
 const schedule = require('node-schedule');
+const moment = require('moment');
 const bodyParser = require('koa-bodyparser');
 const views = require('koa-views');
 const router = require('./router');
 const { logger } = require('./logger.js');
-const { getSeat } = require('./getSeat.js');
+const { getSeat, preReserve } = require('./getSeat.js');
 const { keys, port } = require('./config/config.js');
 
 const app = new Koa();
@@ -39,8 +40,20 @@ app.on('error', (err) => {
 getSeat();
 
 // 5分钟一次
-schedule.scheduleJob('*/5 * * * *', async () => {
+schedule.scheduleJob('* */5 * * * *', async () => {
   await getSeat();
+});
+
+// 6点29
+let date = '';
+schedule.scheduleJob('* 29 6 * * *', async () => {
+  const time = moment().format('YYYY-MM-DD');
+  if (date !== time) {
+    const { success } = await preReserve();
+    if (success) {
+      date = time;
+    }
+  }
 });
 
 // TODO:座位数量监控
