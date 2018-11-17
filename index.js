@@ -40,7 +40,7 @@ app.on('error', (err) => {
 getSeat();
 
 // 5分钟一次
-schedule.scheduleJob('* */5 * * * *', async () => {
+schedule.scheduleJob('0 */5 * * * *', async () => {
   await getSeat();
 });
 
