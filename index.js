@@ -5,7 +5,7 @@ const bodyParser = require('koa-bodyparser');
 const views = require('koa-views');
 const router = require('./router');
 const { logger } = require('./logger.js');
-const { getSeat, preReserve } = require('./getSeat.js');
+const { getSeat } = require('./getSeat.js');
 const { keys, port } = require('./config/config.js');
 
 const app = new Koa();
@@ -49,7 +49,7 @@ let date = '';
 schedule.scheduleJob('* 29 6 * * *', async () => {
   const time = moment().format('YYYY-MM-DD');
   if (date !== time) {
-    const { success } = await preReserve();
+    const success = await getSeat();
     if (success) {
       date = time;
     }

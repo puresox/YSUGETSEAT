@@ -266,24 +266,11 @@ async function quickResvSeat(user, startTime) {
 }
 
 /**
- *判断是否可预约
+ *获取单个用户的座位
  *
- * 仅返回错误信息
+ * @param {*} user
  * @returns
  */
-async function checkReserve() {
-  const { success, msg } = await getRoomStatus('100457211');
-  if (success) {
-    const seats = msg;
-    const [{ state }] = seats;
-    if (state !== 'close') {
-      return { success: true };
-    }
-    return { success: false };
-  }
-  return { success: false, msg };
-}
-
 async function getSeat(user) {
   const userModel = findUser(user.id);
 
@@ -302,7 +289,7 @@ async function getSeat(user) {
       session = msg;
     } else {
       logger.error(`${user.id} login error,system end. Error:${msg}`);
-      return;
+      return { success: false };
     }
   }
   // 06:30预约
@@ -310,25 +297,24 @@ async function getSeat(user) {
   if (nowTime === '06:30' || nowTime === '06:29') {
     let { success, msg } = await reserve(user, session, moment().format('YYYY-MM-DD 07:30'), end);
     if (!success && msg.includes('登录')) {
-      logger.error(`${user.id} session is out of date. Error:${msg}`);
       ({ success, msg } = await login(user));
       if (!success) {
         logger.error(`${user.id} login error,system end. Error:${msg}`);
-        return;
+        return { success: false };
       }
       userModel.assign({ session: msg }).write();
       const newUser = Array.from(user);
       newUser.session = msg;
       await getSeat(newUser);
     }
-    return;
+    return { success: true };
   }
 
   // 刷新登录信息
   let { success, msg } = await reLogin(session, userModel);
   if (!success) {
     logger.error(`${user.id} reLogin error,system end. Error:${msg}`);
-    return;
+    return { success: false };
   }
   session = msg;
 
@@ -336,7 +322,7 @@ async function getSeat(user) {
   ({ success, msg } = await getResvInfo(session));
   if (!success) {
     logger.error(`${user.id} getResvInfo error,system end. Error:${msg}`);
-    return;
+    return { success: false };
   }
   const reserves = msg;
   // 获取预约
@@ -372,6 +358,7 @@ async function getSeat(user) {
     }
     await reserve(user, session, start, end);
   }
+  return { success: true };
 }
 
 /**
@@ -387,7 +374,7 @@ async function index() {
       'minute',
     )
   ) {
-    return;
+    return false;
   }
   const getSeatPromises = [];
   const users = findUsers();
@@ -396,24 +383,9 @@ async function index() {
       getSeatPromises.push(getSeat(user));
     }
   });
-  await Promise.all(getSeatPromises);
-  // logger.info('----------------------------------------------------------------------------');
-}
-
-/**
- *提前预约
- *
- * 仅返回错误信息
- * @returns
- */
-async function preReserve() {
-  const { success, msg } = await checkReserve();
-  if (success) {
-    await index();
-    return { success: true };
-  }
-  logger.error(`Error:${msg}`);
-  return { success: false };
+  const [{ success }] = await Promise.all(getSeatPromises);
+  logger.info('----------------------------------------------------------------------------');
+  return success;
 }
 
 exports.getSeat = index;
@@ -425,4 +397,3 @@ exports.login = login;
 exports.quickResvSeat = quickResvSeat;
 exports.reLogin = reLogin;
 exports.getResvInfo = getResvInfo;
-exports.preReserve = preReserve;
