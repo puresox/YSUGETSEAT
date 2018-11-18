@@ -45,15 +45,8 @@ schedule.scheduleJob('0 */5 * * * *', async () => {
 });
 
 // 6点29
-let date = '';
 schedule.scheduleJob('* 29 6 * * *', async () => {
-  const time = moment().format('YYYY-MM-DD');
-  if (date !== time) {
-    const success = await getSeat();
-    if (success) {
-      date = time;
-    }
-  }
+  await getSeat();
 });
 
 // TODO:座位数量监控
