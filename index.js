@@ -1,6 +1,5 @@
 const Koa = require('koa');
 const schedule = require('node-schedule');
-const moment = require('moment');
 const bodyParser = require('koa-bodyparser');
 const views = require('koa-views');
 const router = require('./router');
