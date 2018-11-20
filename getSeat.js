@@ -347,13 +347,13 @@ async function getSeat(user) {
     } else if (user.deleteAuto === true) {
       logger.error(`${user.id} fail to change a reserve, try to delete it. Error:${msg}`);
       await delResv(user, session, info.resvId);
-      // await reserve(user, session, start, end);
+      await reserve(user, session, start, end);
     } else {
       logger.error(`${user.id} fail to change a reserve, but i will not do anything. Error:${msg}`);
-      // if (!msg.includes('1小时')) {
-      //   await delResv(user, session, info.resvId);
-      //   await reserve(user, session, start, end);
-      // }
+      if (!msg.includes('1小时')) {
+        await delResv(user, session, info.resvId);
+        await reserve(user, session, start, end);
+      }
     }
   } else if (!reserveOfToday && moment().isBefore(moment().format('YYYY-MM-DD 21:00'), 'minute')) {
     // 预约今日座位
