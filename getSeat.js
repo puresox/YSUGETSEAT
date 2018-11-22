@@ -121,7 +121,7 @@ async function delResv(user, session, resvId) {
   const { data2 } = await axios.get(resvLeave, {
     headers: { Cookie: session },
   });
-  if (data1.ret !== 1 && data2.ret !== 1) {
+  if (data1.ret !== 1 && data2.includes('"ret":0')) {
     logger.error(`${user.id} fail to delete a reserve. Error1:${data1.msg} Error2:${data2.msg}`);
   } else {
     logger.info(`${user.id} delete a reserve successfully`);

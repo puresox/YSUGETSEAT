@@ -16,24 +16,28 @@ router
     if (!user) {
       await ctx.redirect('/logout');
     } else {
-      const { msg: session } = await reLogin(user.session, userModel);
-      const { msg: reserves } = await getResvInfo(session);
-      let devName = '';
-      // 获取预约
-      if (reserves.length !== 0) {
-        [{ devName }] = reserves;
+      const { success, msg: session } = await reLogin(user.session, userModel);
+      if (!success) {
+        await ctx.render('error');
+      } else {
+        const { msg: reserves } = await getResvInfo(session);
+        let devName = '';
+        // 获取预约
+        if (reserves.length !== 0) {
+          [{ devName }] = reserves;
+        }
+        const {
+          enable, deleteAuto, name, seat, adjust,
+        } = user;
+        await ctx.render('index', {
+          enable,
+          deleteAuto,
+          devName,
+          name,
+          seat,
+          adjust,
+        });
       }
-      const {
-        enable, deleteAuto, name, seat, adjust,
-      } = user;
-      await ctx.render('index', {
-        enable,
-        deleteAuto,
-        devName,
-        name,
-        seat,
-        adjust,
-      });
     }
   })
   .post('/', checkHasSignIn, async (ctx) => {
