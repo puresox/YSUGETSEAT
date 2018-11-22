@@ -28,6 +28,15 @@ async function login({ id, pwd }) {
  * @returns
  */
 async function reLogin(session, userModel) {
+  if (!session) {
+    const { success, msg } = await login(userModel.value());
+    if (success) {
+      userModel.assign({ session: msg }).write();
+      return { success: true, msg };
+    }
+    logger.error(`${userModel.value().id} login error,system end. Error:${msg}`);
+    return { success: false };
+  }
   const loginUrl = 'http://seat.ysu.edu.cn/ClientWeb/pro/ajax/login.aspx?act=login&id=@relogin&pwd=&role=512&aliuserid=&schoolcode=&wxuserid=&_nocache=1541949437657';
   const { data } = await axios.get(loginUrl, {
     headers: { Cookie: session },
@@ -347,12 +356,12 @@ async function getSeat(user) {
     } else if (user.deleteAuto === true) {
       logger.error(`${user.id} fail to change a reserve, try to delete it. Error:${msg}`);
       await delResv(user, session, info.resvId);
-      await reserve(user, session, start, end);
+      await reserve(user, session, start, reserveOfToday.end);
     } else {
       logger.error(`${user.id} fail to change a reserve, but i will not do anything. Error:${msg}`);
       if (!msg.includes('1小时')) {
         await delResv(user, session, info.resvId);
-        await reserve(user, session, start, end);
+        await reserve(user, session, start, reserveOfToday.end);
       }
     }
   } else if (!reserveOfToday && moment().isBefore(moment().format('YYYY-MM-DD 21:00'), 'minute')) {
@@ -378,7 +387,7 @@ async function index() {
       'minute',
     )
   ) {
-    return false;
+    return;
   }
   const getSeatPromises = [];
   const users = findUsers();
@@ -387,9 +396,8 @@ async function index() {
       getSeatPromises.push(getSeat(user));
     }
   });
-  const [{ success }] = await Promise.all(getSeatPromises);
+  await Promise.all(getSeatPromises);
   logger.info('----------------------------------------------------------------------------');
-  return success;
 }
 
 exports.getSeat = index;
