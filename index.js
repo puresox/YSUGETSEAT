@@ -40,9 +40,9 @@ schedule.scheduleJob('0 */5 * * * *', async () => {
 });
 
 // 6点29
-schedule.scheduleJob('* 29 6 * * *', async () => {
-  await getSeat();
-});
+// schedule.scheduleJob('* 29 6 * * *', async () => {
+//   await getSeat();
+// });
 
 app.on('error', (err) => {
   logger.error(err.message);
