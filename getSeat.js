@@ -117,12 +117,12 @@ async function delResv(user, session, resvId) {
   const { data1 } = await axios.get(delResvUrl, {
     headers: { Cookie: session },
   });
-  const resvLeave = `http://seat.ysu.edu.cn/ClientWeb/pro/ajax/reserve.aspx?act=resv_leave&type=2&resv_id=${resvId}&_nocache=1542681776115`;
-  const { data2 } = await axios.get(resvLeave, {
-    headers: { Cookie: session },
-  });
-  if (data1.ret !== 1 && data2.includes('"ret":0')) {
-    logger.error(`${user.id} fail to delete a reserve. Error1:${data1.msg} Error2:${data2.msg}`);
+  if (data1.ret !== 1) {
+    logger.error(`${user.id} fail to delete a reserve, try to anothor way. Error1:${data1.msg}`);
+    const resvLeave = `http://seat.ysu.edu.cn/ClientWeb/pro/ajax/reserve.aspx?act=resv_leave&type=2&resv_id=${resvId}&_nocache=1542681776115`;
+    await axios.get(resvLeave, {
+      headers: { Cookie: session },
+    });
   } else {
     logger.info(`${user.id} delete a reserve successfully`);
   }
