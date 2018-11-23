@@ -22,7 +22,7 @@
         <h4>
         <% if (devName) { %>
         当前已预约：
-        <a href="/getStuDetail/<%= name %>" class="badge badge-primary"><%= devName %></a>
+        <a href="/findUser/name?name=<%= name %>" class="badge badge-primary"><%= devName %></a>
         <% if (safe) { %>
         <a href="#" class="badge badge-success">预约状态</a>
         <% } else { %>
