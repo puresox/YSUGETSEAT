@@ -227,7 +227,11 @@ async function reserve(user, session, start, end) {
         newUser.labId = seat.labId;
         newUser.seat = seat.name;
         logger.error(`${user.id} fail to reserves the seat ${user.seat}, try to ${newUser.seat}.`);
-        await reserve(newUser, session, start, end);
+        ({ success, msg } = await reserve(newUser, session, start, end));
+        if (success) {
+          return { success: true };
+        }
+        return { success: false, msg };
       }
     }
   }

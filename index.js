@@ -32,10 +32,6 @@ app.use(router.routes()).use(router.allowedMethods());
 app.listen(port);
 logger.info(`system start,listened on ${port}`);
 
-app.on('error', (err) => {
-  logger.error(err.message);
-});
-
 getSeat();
 
 // 5分钟一次
@@ -46,6 +42,10 @@ schedule.scheduleJob('0 */5 * * * *', async () => {
 // 6点29
 schedule.scheduleJob('* 29 6 * * *', async () => {
   await getSeat();
+});
+
+app.on('error', (err) => {
+  logger.error(err.message);
 });
 
 // TODO:座位数量监控
