@@ -13,17 +13,23 @@
         <h4>
         <% if (seat) { %>
         下次将预约：
-        <%= seat %>
+        <a href="/changeSeat" class="badge badge-primary"><%= seat %></a>
         <% } else { %>
-        未选择下次预约，请先选择座位
+        未选择下次预约，请先
+        <a href="/changeSeat" class="badge badge-danger">选择座位</a>
         <% } %>
         </h4>
         <h4>
         <% if (devName) { %>
         当前已预约：
-        <%= devName %>
+        <a href="/getStuDetail/<%= name %>" class="badge badge-primary"><%= devName %></a>
+        <% if (safe) { %>
+        <a href="#" class="badge badge-success">预约状态</a>
         <% } else { %>
-        当前无座位
+        <a href="#" class="badge badge-warning">开始状态</a>
+        <% } %>
+        <% } else { %>
+        <a href="#" class="badge badge-warning">当前无座位</a>
         <% } %>
         </h4>
         <div class="form-check">

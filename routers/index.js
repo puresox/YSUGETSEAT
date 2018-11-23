@@ -1,4 +1,5 @@
 const Router = require('koa-router');
+const moment = require('moment');
 const { checkHasSignIn } = require('../middlewares/check.js');
 const { findUser } = require('../lowdb.js');
 const {
@@ -22,9 +23,14 @@ router
       } else {
         const { msg: reserves } = await getResvInfo(session);
         let devName = '';
+        let start = '';
+        let safe = false;
         // 获取预约
         if (reserves.length !== 0) {
-          [{ devName }] = reserves;
+          [{ devName, start }] = reserves;
+          if (moment().isBefore(start, 'minute')) {
+            safe = true;
+          }
         }
         const {
           enable, deleteAuto, name, seat, adjust,
@@ -36,6 +42,7 @@ router
           name,
           seat,
           adjust,
+          safe,
         });
       }
     }
