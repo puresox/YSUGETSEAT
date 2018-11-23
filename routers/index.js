@@ -70,7 +70,7 @@ router
     if (userValue.enable === true && enable === false) {
       await delAllResv(userValue);
     } else if (enable === true) {
-      getSeatImmediately(userValue);
+      await getSeatImmediately(userValue);
     }
     user.assign({ enable, deleteAuto, adjust }).write();
     // TODO:flash

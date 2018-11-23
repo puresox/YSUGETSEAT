@@ -114,11 +114,13 @@ async function getRoomStatus(roomId) {
  */
 async function delResv(user, session, resvId) {
   const delResvUrl = `http://seat.ysu.edu.cn/ClientWeb/pro/ajax/reserve.aspx?act=del_resv&id=${resvId}&_nocache=1531823241100`;
-  const { data1 } = await axios.get(delResvUrl, {
+  const {
+    data: { ret, msg },
+  } = await axios.get(delResvUrl, {
     headers: { Cookie: session },
   });
-  if (data1.ret !== 1) {
-    logger.error(`${user.id} fail to delete a reserve, try to anothor way. Error1:${data1.msg}`);
+  if (ret !== 1) {
+    logger.error(`${user.id} fail to delete a reserve, try to anothor way. Error1:${msg}`);
     const resvLeave = `http://seat.ysu.edu.cn/ClientWeb/pro/ajax/reserve.aspx?act=resv_leave&type=2&resv_id=${resvId}&_nocache=1542681776115`;
     await axios.get(resvLeave, {
       headers: { Cookie: session },
