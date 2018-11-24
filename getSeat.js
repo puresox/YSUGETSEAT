@@ -327,7 +327,7 @@ async function getSeat(user) {
   }
   // 06:30预约
   const nowTime = moment().format('HH:mm');
-  if (nowTime === '06:30' || nowTime === '06:29') {
+  if (nowTime === '06:30') {
     let { success, msg } = await reserve(user, session, moment().format('YYYY-MM-DD 07:30'), end);
     if (!success && msg.includes('登录')) {
       ({ success, msg } = await login(user));
@@ -388,7 +388,14 @@ async function getSeat(user) {
         await reserve(user, session, start, reserveOfToday.end);
       }
     }
-  } else if (!reserveOfToday && moment().isBefore(moment().format('YYYY-MM-DD 21:00'), 'minute')) {
+  } else if (
+    !reserveOfToday
+    && moment().isBetween(
+      moment().format('YYYY-MM-DD 06:30'),
+      moment().format('YYYY-MM-DD 21:00'),
+      'minute',
+    )
+  ) {
     // 预约今日座位
     if (moment().isBefore(moment().format('YYYY-MM-DD 07:30'), 'minute')) {
       start = moment().format('YYYY-MM-DD 07:30');
