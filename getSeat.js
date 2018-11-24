@@ -246,6 +246,7 @@ async function reserve(user, session, start, end) {
         }
         return { success: false, msg };
       }
+      return { success: false, msg: 'there is no seat left' };
     }
   }
   logger.error(`${user.id} fail to reserve a new seat ${user.seat}. Error:${msg}`);
