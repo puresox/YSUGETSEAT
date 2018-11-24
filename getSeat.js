@@ -4,6 +4,17 @@ const { logger } = require('./logger');
 const { findUsers, findUser } = require('./lowdb.js');
 
 /**
+ *延迟任意秒
+ *
+ * @returns
+ */
+function takeLongTime(sec) {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve('long_time_value'), 1000 * sec);
+  });
+}
+
+/**
  *登录获取session
  *
  * 仅返回错误信息
@@ -292,10 +303,12 @@ async function quickResvSeat(user, startTime) {
  */
 async function getSeat(user) {
   const userModel = findUser(user.id);
+  const nowMinute = parseInt(moment().format('mm'), 10);
+  const needOccupy = nowMinute % 10 === 0;
 
   // 设置开始结束时间
   let start = moment()
-    .add(20, 'm')
+    .add(35, 'm')
     .format('YYYY-MM-DD HH:mm');
   const end = moment().format('YYYY-MM-DD 22:30');
 
@@ -325,6 +338,9 @@ async function getSeat(user) {
       const newUser = Array.from(user);
       newUser.session = msg;
       await getSeat(newUser);
+    } else if (!success && msg.includes('6:30')) {
+      await takeLongTime(3);
+      await getSeat(user);
     }
     return { success: true };
   }
@@ -350,10 +366,11 @@ async function getSeat(user) {
   if (
     reserveOfToday
     && moment(start).isBetween(reserveOfToday.start, reserveOfToday.end, 'minute')
+    && needOccupy
   ) {
     const { id: resvId, devId, labId } = reserveOfToday;
     const info = { resvId, devId, labId };
-    // 占座 预约时间调到20分钟后
+    // 占座 预约时间调到35分钟后
     info.start = start;
     info.end = reserveOfToday.end;
     ({ success, msg } = await occupy(session, info));
@@ -388,7 +405,7 @@ async function getSeat(user) {
 async function index() {
   if (
     !moment().isBetween(
-      moment().format('YYYY-MM-DD 06:20'),
+      moment().format('YYYY-MM-DD 06:25'),
       moment().format('YYYY-MM-DD 22:30'),
       'minute',
     )

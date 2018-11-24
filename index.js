@@ -35,14 +35,9 @@ logger.info(`system start,listened on ${port}`);
 getSeat();
 
 // 5分钟一次
-schedule.scheduleJob('0 */5 * * * *', async () => {
+schedule.scheduleJob('0 * * * * *', async () => {
   await getSeat();
 });
-
-// 6点29
-// schedule.scheduleJob('* 29 6 * * *', async () => {
-//   await getSeat();
-// });
 
 app.on('error', (err) => {
   logger.error(err.message);
@@ -50,5 +45,4 @@ app.on('error', (err) => {
 
 // TODO:座位数量监控
 // TODO:开始结束时间
-// TODO:调剂
 // TODO:随机座位
