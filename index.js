@@ -43,6 +43,4 @@ app.on('error', (err) => {
   logger.error(err.message);
 });
 
-// TODO:座位数量监控
 // TODO:开始结束时间
-// TODO:随机座位

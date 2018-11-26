@@ -342,6 +342,9 @@ async function getSeat(user) {
     } else if (!success && msg.includes('6:30')) {
       await takeLongTime(3);
       await getSeat(user);
+    } else if (!success && msg.includes('积分不足')) {
+      userModel.assign({ enable: false }).write();
+      return { success: false };
     }
     return { success: true };
   }
