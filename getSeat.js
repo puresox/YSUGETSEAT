@@ -366,6 +366,11 @@ async function getSeat(user) {
   const reserves = msg;
   // 获取预约
   const reserveOfToday = reserves[0];
+  if (reserveOfToday) {
+    userModel.assign({ hasSeat: true }).write();
+  } else {
+    userModel.assign({ hasSeat: false }).write();
+  }
   // 修改预约状态
   if (
     reserveOfToday
@@ -423,10 +428,13 @@ async function index() {
   ) {
     return;
   }
+  const nowMinute = parseInt(moment().format('mm'), 10);
+  const tenM = nowMinute % 10 === 0;
   const getSeatPromises = [];
   const users = findUsers();
   users.forEach((user) => {
-    if (user.enable) {
+    const { hasSeat } = user;
+    if (user.enable && (tenM || !hasSeat)) {
       getSeatPromises.push(getSeat(user));
     }
   });

@@ -23,6 +23,7 @@ exports.createUser = ({
   seat,
   session,
   adjust,
+  hasSeat,
 }) => users
   .get('users')
   .push({
@@ -37,6 +38,7 @@ exports.createUser = ({
     seat,
     session,
     adjust,
+    hasSeat,
   })
   .write();
 

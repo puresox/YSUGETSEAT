@@ -30,6 +30,7 @@ router
         seat: '',
         session,
         adjust: true,
+        hasSeat: false,
       });
       ctx.cookies.set('id', id, cookie);
       await ctx.redirect('/');
