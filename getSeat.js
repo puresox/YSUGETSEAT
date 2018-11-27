@@ -328,6 +328,7 @@ async function getSeat(user) {
   // 06:30预约
   const nowTime = moment().format('HH:mm');
   if (nowTime === '06:30') {
+    userModel.assign({ hasSeat: false }).write();
     let { success, msg } = await reserve(user, session, moment().format('YYYY-MM-DD 07:30'), end);
     if (!success && msg.includes('登录')) {
       ({ success, msg } = await login(user));
