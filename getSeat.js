@@ -422,7 +422,7 @@ async function getSeat(user) {
 async function index() {
   if (
     !moment().isBetween(
-      moment().format('YYYY-MM-DD 06:25'),
+      moment().format('YYYY-MM-DD 06:15'),
       moment().format('YYYY-MM-DD 22:30'),
       'minute',
     )
