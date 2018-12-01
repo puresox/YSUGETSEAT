@@ -341,7 +341,7 @@ async function getSeat(user) {
       newUser.session = msg;
       await getSeat(newUser);
     } else if (!success && msg.includes('6:30')) {
-      await takeLongTime(3);
+      await takeLongTime(1);
       await getSeat(user);
     } else if (!success && msg.includes('积分不足')) {
       userModel.assign({ enable: false }).write();
