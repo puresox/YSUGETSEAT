@@ -10,5 +10,7 @@ module.exports = {
     httpOnly: true,
     signed: true,
   },
-  adminKey: '',
+  admin: '',
+  timeout: 0,
+  SCKEY: '',
 };

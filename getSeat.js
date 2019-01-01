@@ -2,6 +2,7 @@ const axios = require('axios');
 const moment = require('moment');
 const { logger } = require('./logger');
 const { findUsers, findUser } = require('./lowdb.js');
+const { timeout } = require('./config/config.js');
 
 /**
  *延迟任意秒
@@ -22,7 +23,7 @@ function takeLongTime(sec) {
  */
 async function login({ id, pwd }) {
   const loginUrl = `http://seat.ysu.edu.cn/ClientWeb/pro/ajax/login.aspx?act=login&id=${id}&pwd=${pwd}&role=512&aliuserid=&schoolcode=&wxuserid=&_nocache=1531731958096`;
-  const { data, headers } = await axios.get(loginUrl);
+  const { data, headers } = await axios.get(loginUrl, { timeout });
   if (data.ret === 1) {
     // 保存session
     const {
@@ -51,6 +52,7 @@ async function reLogin(session, userModel) {
   const loginUrl = 'http://seat.ysu.edu.cn/ClientWeb/pro/ajax/login.aspx?act=login&id=@relogin&pwd=&role=512&aliuserid=&schoolcode=&wxuserid=&_nocache=1541949437657';
   const { data } = await axios.get(loginUrl, {
     headers: { Cookie: session },
+    timeout,
   });
   if (data.ret !== 1) {
     logger.error(`${userModel.value().id} reLogin error, try to login. Error:${data.msg}`);
@@ -74,6 +76,7 @@ async function getResvInfo(session) {
   const getResvIdUrl = 'http://seat.ysu.edu.cn/ClientWeb/pro/ajax/reserve.aspx?stat_flag=9&act=get_my_resv&_nocache=1531801794371';
   const { data } = await axios.get(getResvIdUrl, {
     headers: { Cookie: session },
+    timeout,
   });
   if (data.ret !== 1) {
     return { success: false, msg: data.msg };
@@ -92,7 +95,7 @@ async function getRooms() {
   )}&start=${moment().format('HH:mm')}&end=${moment()
     .add(60, 'm')
     .format('HH:mm')}&act=get_rm_sta&_nocache=1534001491105`;
-  const { data } = await axios.get(getRoomsUrl);
+  const { data } = await axios.get(getRoomsUrl, { timeout });
   if (data.ret !== 1) {
     return { success: false, msg: data.msg };
   }
@@ -111,7 +114,7 @@ async function getRoomStatus(roomId) {
   )}&act=get_rsv_sta&fr_start=${moment().format('HH:mm')}&fr_end=${moment()
     .add(60, 'm')
     .format('HH:mm')}&_nocache=1534047543589`;
-  const { data } = await axios.get(getRoomStatusUrl);
+  const { data } = await axios.get(getRoomStatusUrl, { timeout });
   if (data.ret !== 1) {
     return { success: false, msg: data.msg };
   }
@@ -129,12 +132,14 @@ async function delResv(user, session, resvId) {
     data: { ret, msg },
   } = await axios.get(delResvUrl, {
     headers: { Cookie: session },
+    timeout,
   });
   if (ret !== 1) {
     logger.error(`${user.id} fail to delete a reserve, try to anothor way. Error1:${msg}`);
     const resvLeave = `http://seat.ysu.edu.cn/ClientWeb/pro/ajax/reserve.aspx?act=resv_leave&type=2&resv_id=${resvId}&_nocache=1542681776115`;
     await axios.get(resvLeave, {
       headers: { Cookie: session },
+      timeout,
     });
   } else {
     logger.info(`${user.id} delete a reserve successfully`);
@@ -185,6 +190,7 @@ async function occupy(session, {
   const occupyUrl = `http://seat.ysu.edu.cn/ClientWeb/pro/ajax/reserve.aspx?dev_id=${devId}&lab_id=${labId}&room_id=&kind_id=&type=dev&prop=&test_id=&resv_id=${resvId}&term=&min_user=&max_user=&mb_list=&test_name=&start=${start}&end=${end}&memo=&act=set_resv&_nocache=1531732522498`;
   const { data } = await axios.get(occupyUrl, {
     headers: { Cookie: session },
+    timeout,
   });
   if (data.ret !== 1) {
     return { success: false, msg: data.msg };

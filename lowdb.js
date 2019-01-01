@@ -1,4 +1,5 @@
 const low = require('lowdb');
+const uuidv1 = require('uuid/v1');
 const FileSync = require('lowdb/adapters/FileSync');
 
 const userAdapter = new FileSync('./db.json');
@@ -8,7 +9,7 @@ const stuAdapter = new FileSync('./stu2017.json');
 const stus = low(stuAdapter);
 
 // Set some defaults (required if your JSON file is empty)
-users.defaults({ users: [] }).write();
+users.defaults({ users: [], code: '00000000' }).write();
 
 // Add a post
 exports.createUser = ({
@@ -43,6 +44,10 @@ exports.createUser = ({
   .write();
 
 exports.findUsers = () => users.get('users').value();
+
+exports.getCode = () => users.get('code').value();
+
+exports.resetCode = () => users.set('code', uuidv1()).write();
 
 exports.findUserById = id => users
   .get('users')

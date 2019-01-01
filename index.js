@@ -1,11 +1,12 @@
 const Koa = require('koa');
 const schedule = require('node-schedule');
+const axios = require('axios');
 const bodyParser = require('koa-bodyparser');
 const views = require('koa-views');
 const router = require('./router');
 const { logger } = require('./logger.js');
 const { getSeat } = require('./getSeat.js');
-const { keys, port } = require('./config/config.js');
+const { keys, port, SCKEY } = require('./config/config.js');
 
 const app = new Koa();
 
@@ -39,8 +40,12 @@ schedule.scheduleJob('0 * * * * *', async () => {
   await getSeat();
 });
 
-app.on('error', (err) => {
+app.on('error', async (err) => {
   logger.error(err.message);
+  await axios.post(`https://sc.ftqq.com/${SCKEY}.send`, {
+    text: 'YSUGETSEAT ERROR',
+    desp: err.message,
+  });
 });
 
 // TODO:开始结束时间
