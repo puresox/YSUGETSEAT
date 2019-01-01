@@ -73,6 +73,11 @@
         </div>
         <button type="submit" class="btn btn-lg btn-primary btn-block">修改预约</button>
       </form>
+      <br>
+      <br>
+      <% if (code) { %>
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://seat.puresox.cn/signup?code=<%= code %>"/>
+      <% } %>
     </div>
   </div>
 </div>

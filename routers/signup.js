@@ -1,7 +1,9 @@
 const Router = require('koa-router');
 const { checkNotSignIn } = require('../middlewares/check.js');
-const { cookie, adminKey } = require('../config/config.js');
-const { createUser, findUserById } = require('../lowdb.js');
+const { cookie } = require('../config/config.js');
+const {
+  createUser, findUserById, getCode, resetCode,
+} = require('../lowdb.js');
 const { login } = require('../getSeat.js');
 
 const router = new Router();
@@ -12,12 +14,14 @@ router
     await ctx.render('signup');
   })
   .post('/', checkNotSignIn, async (ctx) => {
-    const { id, pwd, adminpwd } = ctx.request.body;
+    const { code } = ctx.request.query;
+    const { id, pwd } = ctx.request.body;
     const user = findUserById(id);
     const { success, msg: session, name } = await login({ id, pwd });
-    if (adminKey !== adminpwd || user || !success) {
+    if (getCode() !== code || user || !success) {
       await ctx.redirect('/signup');
     } else {
+      resetCode();
       createUser({
         enable: false,
         id,

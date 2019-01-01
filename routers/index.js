@@ -1,7 +1,8 @@
 const Router = require('koa-router');
 const moment = require('moment');
 const { checkHasSignIn } = require('../middlewares/check.js');
-const { findUser } = require('../lowdb.js');
+const { admin } = require('../config/config.js');
+const { findUser, getCode } = require('../lowdb.js');
 const {
   getSeatImmediately, delAllResv, reLogin, getResvInfo,
 } = require('../getSeat.js');
@@ -12,6 +13,10 @@ const router = new Router();
 router
   .get('/', checkHasSignIn, async (ctx) => {
     const { userid } = ctx;
+    let code;
+    if (userid === admin) {
+      code = getCode();
+    }
     const userModel = findUser(userid);
     const user = userModel.value();
     if (!user) {
@@ -43,6 +48,7 @@ router
           seat,
           adjust,
           safe,
+          code,
         });
       }
     }
