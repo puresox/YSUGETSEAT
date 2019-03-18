@@ -1,6 +1,7 @@
 const Router = require('koa-router');
 const moment = require('moment');
 const { checkHasSignIn } = require('../middlewares/check.js');
+const { logger } = require('../logger.js');
 const { admin } = require('../config/config.js');
 const { findUser, getCode } = require('../lowdb.js');
 const {
@@ -22,35 +23,37 @@ router
     if (!user) {
       await ctx.redirect('/logout');
     } else {
-      const { success, msg: session } = await reLogin(user.session, userModel);
-      if (!success) {
-        await ctx.render('error');
-      } else {
-        const { msg: reserves } = await getResvInfo(session);
-        let devName = '';
-        let start = '';
-        let safe = false;
-        // 获取预约
-        if (reserves.length !== 0) {
-          [{ devName, start }] = reserves;
-          if (moment().isBefore(start, 'minute')) {
-            safe = true;
+      const {
+        enable, deleteAuto, name, seat, adjust,
+      } = user;
+      let devName = '';
+      let start = '';
+      let safe = false;
+      try {
+        const { success, msg: session } = await reLogin(user.session, userModel);
+        if (success) {
+          const { msg: reserves } = await getResvInfo(session);
+          // 获取预约
+          if (reserves.length !== 0) {
+            [{ devName, start }] = reserves;
+            if (moment().isBefore(start, 'minute')) {
+              safe = true;
+            }
           }
         }
-        const {
-          enable, deleteAuto, name, seat, adjust,
-        } = user;
-        await ctx.render('index', {
-          enable,
-          deleteAuto,
-          devName,
-          name,
-          seat,
-          adjust,
-          safe,
-          code,
-        });
+      } catch (error) {
+        logger.error(error.message);
       }
+      await ctx.render('index', {
+        enable,
+        deleteAuto,
+        devName,
+        name,
+        seat,
+        adjust,
+        safe,
+        code,
+      });
     }
   })
   .post('/', checkHasSignIn, async (ctx) => {
