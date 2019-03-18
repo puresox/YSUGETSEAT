@@ -412,7 +412,7 @@ async function getSeat(user) {
     )
   ) {
     // 预约今日座位
-    if (moment().isBefore(moment().format('YYYY-MM-DD 07:30'), 'minute')) {
+    if (moment().add(35, 'm').isBefore(moment().format('YYYY-MM-DD 07:30'), 'minute')) {
       start = moment().format('YYYY-MM-DD 07:30');
     }
     await reserve(user, session, start, end);
