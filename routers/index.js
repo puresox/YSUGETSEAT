@@ -76,10 +76,14 @@ router
     }
     const user = findUser(userid);
     const userValue = user.value();
-    if (userValue.enable === true && enable === false) {
-      await delAllResv(userValue);
-    } else if (enable === true) {
-      await getSeatImmediately(userValue);
+    try {
+      if (userValue.enable === true && enable === false) {
+        await delAllResv(userValue);
+      } else if (enable === true) {
+        await getSeatImmediately(userValue);
+      }
+    } catch (error) {
+      logger.error(error.message);
     }
     user.assign({ enable, deleteAuto, adjust }).write();
     // TODO:flash
