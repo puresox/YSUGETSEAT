@@ -29,7 +29,9 @@ async function login({ id, pwd }) {
     const {
       'set-cookie': [session],
     } = headers;
-    return { success: true, msg: session, name: data.data.name };
+    return {
+      success: true, msg: session, name: data.data.name, data: data.data,
+    };
   }
   return { success: false, msg: data.msg };
 }
@@ -41,10 +43,10 @@ async function login({ id, pwd }) {
  */
 async function reLogin(session, userModel) {
   if (!session) {
-    const { success, msg } = await login(userModel.value());
+    const { success, msg, data } = await login(userModel.value());
     if (success) {
       userModel.assign({ session: msg }).write();
-      return { success: true, msg };
+      return { success: true, msg, data };
     }
     logger.error(`${userModel.value().id} login error,system end. Error:${msg}`);
     return { success: false };
@@ -62,9 +64,9 @@ async function reLogin(session, userModel) {
     }
     logger.info(`${userModel.value().id} reLogin successfully.`);
     userModel.assign({ session: msg }).write();
-    return { success: true, msg };
+    return { success: true, msg, data: data.data };
   }
-  return { success: true, msg: session };
+  return { success: true, msg: session, data: data.data };
 }
 
 /**
