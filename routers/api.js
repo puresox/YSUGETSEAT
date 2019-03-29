@@ -1,7 +1,9 @@
 const Router = require('koa-router');
 const moment = require('moment');
 const { checkApi } = require('../middlewares/check.js');
-const { findUserById, findUser, findSeatById } = require('../lowdb.js');
+const {
+  findUserById, findUser, findSeatById, findStusByName,
+} = require('../lowdb.js');
 const {
   quickResvSeat, getRooms, getRoomStatus, reLogin, getResvInfo, delAllResv, getSeatImmediately,
 } = require('../getSeat.js');
@@ -197,6 +199,94 @@ router
     ctx.body = {
       success: true,
       msg: '成功',
+    };
+  })
+  .post('/search', checkApi, async (ctx) => {
+    const { method, methodMsg } = ctx.request.body;
+    if (method === '0') {
+      const roomId = methodMsg;
+      const { success, msg } = await getRoomStatus(roomId);
+      if (success) {
+        const seats = msg;
+        const userList = [];
+        seats.forEach(({ name, ts }) => {
+          ts.forEach(({ owner, start, end }) => {
+            userList.push({
+              name,
+              owner,
+              start,
+              end,
+            });
+          });
+        });
+        ctx.body = {
+          success: true,
+          msg: userList,
+        };
+      } else {
+        ctx.body = {
+          success: false,
+          msg: '请求失败',
+        };
+      }
+    } else if (method === '1') {
+      const userName = methodMsg;
+      const userList = [];
+      let { success, msg } = await getRooms();
+      if (success) {
+        const rooms = msg;
+        const findUserPromises = [];
+        rooms.forEach(({ id }) => {
+          findUserPromises.push(
+            (async () => {
+              ({ success, msg } = await getRoomStatus(id));
+              if (success) {
+                const seats = msg;
+                seats.forEach(({ name, ts }) => {
+                  ts.forEach(({ owner, start, end }) => {
+                    if (userName === owner) {
+                      userList.push({
+                        name,
+                        owner,
+                        start,
+                        end,
+                      });
+                    }
+                  });
+                });
+              } else {
+                ctx.body = {
+                  success: false,
+                  msg: '请求失败',
+                };
+              }
+            })(),
+          );
+        });
+        await Promise.all(findUserPromises);
+        ctx.body = {
+          success: true,
+          msg: userList,
+        };
+      } else {
+        ctx.body = {
+          success: false,
+          msg: '请求失败',
+        };
+      }
+    } else {
+      ctx.body = {
+        success: false,
+        msg: '输入无效',
+      };
+    }
+  })
+  .post('/stuDetail', checkApi, async (ctx) => {
+    const { name } = ctx.request.body;
+    const stus = await findStusByName(name);
+    ctx.body = {
+      success: true,
+      msg: stus,
     };
   });
 module.exports = router;
