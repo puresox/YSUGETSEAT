@@ -208,20 +208,25 @@ router
       const { success, msg } = await getRoomStatus(roomId);
       if (success) {
         const seats = msg;
-        const userList = [];
-        seats.forEach(({ name, ts }) => {
+        const seatList = [];
+        seats.forEach(({ name, ts }, index) => {
+          seatList[index] = {
+            name,
+            userList: [],
+          };
           ts.forEach(({ owner, start, end }) => {
-            userList.push({
-              name,
+            const [, sTime] = start.split(' ');
+            const [, eTime] = end.split(' ');
+            seatList[index].userList.push({
               owner,
-              start,
-              end,
+              start: sTime,
+              end: eTime,
             });
           });
         });
         ctx.body = {
           success: true,
-          msg: userList,
+          msg: seatList,
         };
       } else {
         ctx.body = {
@@ -231,7 +236,7 @@ router
       }
     } else if (method === '1') {
       const userName = methodMsg;
-      const userList = [];
+      const seatList = [];
       let { success, msg } = await getRooms();
       if (success) {
         const rooms = msg;
@@ -245,11 +250,15 @@ router
                 seats.forEach(({ name, ts }) => {
                   ts.forEach(({ owner, start, end }) => {
                     if (userName === owner) {
-                      userList.push({
+                      const [, sTime] = start.split(' ');
+                      const [, eTime] = end.split(' ');
+                      seatList.push({
                         name,
-                        owner,
-                        start,
-                        end,
+                        userList: [{
+                          owner,
+                          start: sTime,
+                          end: eTime,
+                        }],
                       });
                     }
                   });
@@ -266,7 +275,7 @@ router
         await Promise.all(findUserPromises);
         ctx.body = {
           success: true,
-          msg: userList,
+          msg: seatList,
         };
       } else {
         ctx.body = {
