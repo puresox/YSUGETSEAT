@@ -58,9 +58,9 @@ async function reLogin(session, userModel) {
   });
   if (data.ret !== 1) {
     logger.error(`${userModel.value().id} reLogin error, try to login. Error:${data.msg}`);
-    const { success, msg } = await login(userModel.value());
+    const { success, msg, data: data2 } = await login(userModel.value());
     if (!success) {
-      return { success: false, msg };
+      return { success: false, msg, data: data2 };
     }
     logger.info(`${userModel.value().id} reLogin successfully.`);
     userModel.assign({ session: msg }).write();
