@@ -120,6 +120,7 @@ router
     let start = '';
     let isResv = false;
     let timeDesc = '';
+    let roomId = '';
     try {
       const {
         success, msg: session, data: { credit: [[, credit]] },
@@ -129,7 +130,7 @@ router
         // 获取预约
         if (reserves.length !== 0) {
           [{
-            devName, labName, start, timeDesc,
+            devName, labName, start, timeDesc, roomId,
           }] = reserves;
           if (moment().isBefore(start, 'minute')) {
             isResv = true;
@@ -149,6 +150,8 @@ router
           credit,
           // 时间
           timeDesc,
+          // 阅览室id
+          roomId,
         },
       };
     } catch (error) {
