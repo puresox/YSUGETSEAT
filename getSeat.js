@@ -64,7 +64,7 @@ async function reLogin(session, userModel) {
     }
     logger.info(`${userModel.value().id} reLogin successfully.`);
     userModel.assign({ session: msg }).write();
-    return { success: true, msg, data: data.data };
+    return { success: true, msg, data: data2 };
   }
   return { success: true, msg: session, data: data.data };
 }
