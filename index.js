@@ -35,7 +35,7 @@ logger.info(`system start,listened on ${port}`);
 
 getSeat();
 
-// 5分钟一次
+// 1分钟一次
 schedule.scheduleJob('0 * * * * *', async () => {
   await getSeat();
 });

@@ -333,10 +333,14 @@ async function getSeat(user) {
       return { success: false };
     }
   }
-  // 06:30预约
+
   const nowTime = moment().format('HH:mm');
-  if (nowTime === '06:30') {
+  // 6:20设置当前无座位
+  if (nowTime === '06:20') {
     userModel.assign({ hasSeat: false }).write();
+  }
+  // 06:29和06:30预约
+  if ((nowTime === '06:29' || nowTime === '06:30') && !user.hasSeat) {
     let { success, msg } = await reserve(user, session, moment().format('YYYY-MM-DD 07:30'), end);
     if (!success && msg.includes('登录')) {
       ({ success, msg } = await login(user));
