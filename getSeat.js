@@ -243,7 +243,7 @@ async function reserve(user, session, start, end) {
       const seats = msg;
       const seat = seats.find(({ ts }) => ts.length === 0);
       if (seat) {
-        const newUser = Array.from(user);
+        const newUser = Object.assign({}, user);
         newUser.devId = seat.devId;
         newUser.labId = seat.labId;
         newUser.seat = seat.name;
@@ -349,7 +349,7 @@ async function getSeat(user) {
         return { success: false };
       }
       userModel.assign({ session: msg }).write();
-      const newUser = Array.from(user);
+      const newUser = Object.assign({}, user);
       newUser.session = msg;
       await getSeat(newUser);
     } else if (!success && msg.includes('6:30')) {
