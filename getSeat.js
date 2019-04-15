@@ -311,15 +311,16 @@ async function quickResvSeat(user, startTime) {
  * @returns
  */
 async function getSeat(user) {
+  const nowMoment = moment();
   const userModel = findUser(user.id);
-  const nowMinute = parseInt(moment().format('mm'), 10);
+  const nowMinute = parseInt(nowMoment.format('mm'), 10);
   const needOccupy = nowMinute % 10 === 0;
 
   // 设置开始结束时间
-  let start = moment()
+  let start = nowMoment
     .add(35, 'm')
     .format('YYYY-MM-DD HH:mm');
-  const end = moment().format('YYYY-MM-DD 22:30');
+  const end = nowMoment.format('YYYY-MM-DD 22:30');
 
   // 获取session
   let { session } = user;
@@ -334,14 +335,14 @@ async function getSeat(user) {
     }
   }
 
-  const nowTime = moment().format('HH:mm');
+  const nowTime = nowMoment.format('HH:mm');
   // 6:20设置当前无座位
   if (nowTime === '06:20') {
     userModel.assign({ hasSeat: false }).write();
   }
-  // 06:29和06:30预约
-  if ((nowTime === '06:29' || nowTime === '06:30') && !user.hasSeat) {
-    let { success, msg } = await reserve(user, session, moment().format('YYYY-MM-DD 07:30'), end);
+  // 06:25开始预约
+  if (nowMoment.isBetween(nowMoment.format('YYYY-MM-DD 06:25'), nowMoment.format('YYYY-MM-DD 06:35'), 'minute') && !user.hasSeat) {
+    let { success, msg } = await reserve(user, session, nowMoment.format('YYYY-MM-DD 07:30'), end);
     if (!success && msg.includes('登录')) {
       ({ success, msg } = await login(user));
       if (!success) {
@@ -351,10 +352,14 @@ async function getSeat(user) {
       userModel.assign({ session: msg }).write();
       const newUser = Object.assign({}, user);
       newUser.session = msg;
-      await getSeat(newUser);
+      if (moment().add(2, 's').format('HH:mm') === nowTime) {
+        await getSeat(newUser);
+      }
     } else if (!success && msg.includes('6:30')) {
-      await takeLongTime(1);
-      await getSeat(user);
+      if (moment().add(2, 's').format('HH:mm') === nowTime) {
+        await takeLongTime(2);
+        await getSeat(user);
+      }
     } else if (!success && msg.includes('积分不足')) {
       userModel.assign({ enable: false }).write();
       return { success: false };
