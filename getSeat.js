@@ -317,7 +317,7 @@ async function getSeat(user) {
   const needOccupy = nowMinute % 10 === 0;
 
   // 设置开始结束时间
-  let start = nowMoment
+  let start = moment(nowMoment)
     .add(35, 'm')
     .format('YYYY-MM-DD HH:mm');
   const end = nowMoment.format('YYYY-MM-DD 22:30');
