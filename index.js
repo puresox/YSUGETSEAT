@@ -1,6 +1,7 @@
 const Koa = require('koa');
 const schedule = require('node-schedule');
 const axios = require('axios');
+const serve = require('koa-static');
 const bodyParser = require('koa-bodyparser');
 const views = require('koa-views');
 const router = require('./router');
@@ -11,6 +12,8 @@ const { keys, port, SCKEY } = require('./config/config.js');
 const app = new Koa();
 
 app.keys = keys;
+
+app.use(serve('public'));
 
 app.use(
   bodyParser({

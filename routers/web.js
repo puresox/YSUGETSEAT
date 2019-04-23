@@ -13,9 +13,6 @@ const router = new Router();
 // /
 router
   .get('/', checkHasSignIn, async (ctx) => {
-    await ctx.render('minipro');
-  })
-  .get('/index', checkHasSignIn, async (ctx) => {
     const { userid } = ctx;
     let code;
     if (userid === admin) {
@@ -59,7 +56,7 @@ router
       });
     }
   })
-  .post('/index', checkHasSignIn, async (ctx) => {
+  .post('/', checkHasSignIn, async (ctx) => {
     const { userid } = ctx;
     let { enable, deleteAuto, adjust } = ctx.request.body;
     if (enable === 'enable') {

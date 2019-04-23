@@ -8,6 +8,7 @@ const logout = require('./routers/logout');
 const getStuDetail = require('./routers/getStuDetail');
 const quickResvSeat = require('./routers/quickResvSeat');
 const api = require('./routers/api');
+const web = require('./routers/web');
 
 const router = new Router();
 
@@ -20,5 +21,6 @@ router.use('/logout', logout.routes(), logout.allowedMethods());
 router.use('/getStuDetail', getStuDetail.routes(), getStuDetail.allowedMethods());
 router.use('/quickResvSeat', quickResvSeat.routes(), quickResvSeat.allowedMethods());
 router.use('/api', api.routes(), api.allowedMethods());
+router.use('/web', web.routes(), web.allowedMethods());
 
 module.exports = router;
