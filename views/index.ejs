@@ -11,49 +11,44 @@
           <%= name %>
         </h1>
         <h4>
-        <% if (seat) { %>
-        下次将预约：
-        <a href="/changeSeat" class="badge badge-primary"><%= seat %></a>
-        <% } else { %>
-        未选择下次预约，请先
-        <a href="/changeSeat" class="badge badge-danger">选择座位</a>
-        <% } %>
+          <% if (seat) { %>
+          下次将预约：
+          <a href="/changeSeat" class="badge badge-primary"><%= seat %></a>
+          <% } else { %>
+          未选择下次预约，请先
+          <a href="/changeSeat" class="badge badge-danger">选择座位</a>
+          <% } %>
         </h4>
         <h4>
-        <% if (devName) { %>
-        当前已预约：
-        <a href="/findUser/name?name=<%= name %>" class="badge badge-primary"><%= devName %></a>
-        <% if (safe) { %>
-        <a href="#" class="badge badge-success">预约状态</a>
-        <% } else { %>
-        <a href="#" class="badge badge-warning">开始状态</a>
-        <% } %>
-        <% } else { %>
-        <a href="#" class="badge badge-warning">当前无座位</a>
-        <% } %>
+          <% if (devName) { %>
+          当前已预约：
+          <a href="/findUser/name?name=<%= name %>" class="badge badge-primary"><%= devName %></a>
+          <% if (safe) { %>
+          <a href="#" class="badge badge-success">预约状态</a>
+          <% } else { %>
+          <a href="#" class="badge badge-warning">开始状态</a>
+          <% } %>
+          <% } else { %>
+          <a href="#" class="badge badge-warning">当前无座位</a>
+          <% } %>
         </h4>
         <div class="form-check">
           <input class="form-check-input" type="checkbox" value="enable" id="enable" name="enable" <% if (enable) { %>
-          <%= "checked" %>
-          <% } %>>
+            <%= "checked" %> <% } %>>
           <label class="form-check-label" for="checkbox">
             占座开关：选中表示占座，不选择表示不占座
           </label>
         </div>
         <div class="form-check">
           <input class="form-check-input" type="checkbox" value="deleteAuto" id="deleteAuto" name="deleteAuto" <% if
-            (deleteAuto) { %>
-          <%= "checked" %>
-          <% } %>>
+            (deleteAuto) { %> <%= "checked" %> <% } %>>
           <label class="form-check-label" for="checkbox">
             自动释放：选中表示自动释放，不选择表示不自动释放(自动释放包括出错自动释放和提前一小时释放)
           </label>
         </div>
         <div class="form-check">
           <input class="form-check-input" type="checkbox" value="adjust" id="adjust" name="adjust" <% if
-            (adjust) { %>
-          <%= "checked" %>
-          <% } %>>
+            (adjust) { %> <%= "checked" %> <% } %>>
           <label class="form-check-label" for="checkbox">
             室内调剂：选中表示接受室内调剂，不选择表示不室内调剂(室内调剂是在占座失败时自动预约同一阅览室其他空座位)
           </label>
@@ -76,7 +71,7 @@
       <br>
       <br>
       <% if (code) { %>
-      <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://seat.puresox.cn/signup?code=<%= code %>"/>
+      <img src="http://qr.liantu.com/api.php?text=https://seat.puresox.cn/signup?code=<%= code %>" />
       <% } %>
     </div>
   </div>
