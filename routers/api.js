@@ -14,10 +14,15 @@ router
   .post('/signin', async (ctx) => {
     const { id, pw: pwd } = ctx.request.body;
     const user = findUserById(id);
-    if (!user || user.pwd !== pwd) {
+    if (!user) {
       ctx.body = {
         success: false,
-        msg: '用户不存在或密码错误',
+        msg: '用户不存，请联系管理员添加用户',
+      };
+    } else if (user.pwd !== pwd) {
+      ctx.body = {
+        success: false,
+        msg: '密码错误',
       };
     } else {
       ctx.body = {
