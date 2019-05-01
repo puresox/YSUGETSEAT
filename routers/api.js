@@ -1,6 +1,7 @@
 const Router = require('koa-router');
 const moment = require('moment');
 const { checkApi } = require('../middlewares/check.js');
+const { admin } = require('../config/config');
 const {
   findUserById,
   findUser,
@@ -45,7 +46,7 @@ router
     }
   })
   .post('/signup', async (ctx) => {
-    const { id, pwd, code } = ctx.request.body;
+    const { id, pw: pwd, code } = ctx.request.body;
     if (getCode() !== code) {
       ctx.body = {
         success: false,
@@ -159,6 +160,10 @@ router
   .get('/userInfo', checkApi, async (ctx) => {
     const { userid } = ctx;
     const userModel = findUser(userid);
+    let code = '';
+    if (userid === admin) {
+      code = getCode();
+    }
     const user = userModel.value();
     const {
       enable, deleteAuto, name, seat, adjust,
@@ -171,6 +176,7 @@ router
         name,
         seat,
         adjust,
+        code,
       },
     };
   })
