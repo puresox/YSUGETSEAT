@@ -2,10 +2,23 @@ const Router = require('koa-router');
 const moment = require('moment');
 const { checkApi } = require('../middlewares/check.js');
 const {
-  findUserById, findUser, findSeatById, findStusByName,
+  findUserById,
+  findUser,
+  findSeatById,
+  findStusByName,
+  createUser,
+  getCode,
+  resetCode,
 } = require('../lowdb.js');
 const {
-  quickResvSeat, getRooms, getRoomStatus, reLogin, getResvInfo, delAllResv, getSeatImmediately,
+  login,
+  quickResvSeat,
+  getRooms,
+  getRoomStatus,
+  reLogin,
+  getResvInfo,
+  delAllResv,
+  getSeatImmediately,
 } = require('../getSeat.js');
 
 const router = new Router();
@@ -30,6 +43,51 @@ router
         msg: id,
       };
     }
+  })
+  .post('/signup', async (ctx) => {
+    const { id, pwd, code } = ctx.request.body;
+    if (getCode() !== code) {
+      ctx.body = {
+        success: false,
+        msg: '邀请码错误',
+      };
+      return;
+    }
+    const user = findUserById(id);
+    if (user) {
+      ctx.body = {
+        success: false,
+        msg: '您已注册',
+      };
+      return;
+    }
+    const { success, msg: session, name } = await login({ id, pwd });
+    if (!success) {
+      ctx.body = {
+        success: false,
+        msg: '学号或密码错误',
+      };
+      return;
+    }
+    resetCode();
+    createUser({
+      enable: false,
+      id,
+      pwd,
+      devId: '',
+      labId: '',
+      roomId: '',
+      deleteAuto: false,
+      name,
+      seat: '',
+      session,
+      adjust: true,
+      hasSeat: false,
+    });
+    ctx.body = {
+      success: false,
+      msg: id,
+    };
   })
   .post('/changeTime', checkApi, async (ctx) => {
     const { userid } = ctx;
@@ -128,7 +186,11 @@ router
     let roomId = '';
     try {
       const {
-        success, msg: session, data: { credit: [[, credit]] },
+        success,
+        msg: session,
+        data: {
+          credit: [[, credit]],
+        },
       } = await reLogin(user.session, userModel);
       if (success) {
         const { msg: reserves } = await getResvInfo(session);
@@ -262,11 +324,13 @@ router
                       const [, eTime] = end.split(' ');
                       seatList.push({
                         name,
-                        userList: [{
-                          owner,
-                          start: sTime,
-                          end: eTime,
-                        }],
+                        userList: [
+                          {
+                            owner,
+                            start: sTime,
+                            end: eTime,
+                          },
+                        ],
                       });
                     }
                   });
