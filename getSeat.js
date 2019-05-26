@@ -426,7 +426,11 @@ async function getSeat(user) {
     if (moment().add(35, 'm').isBefore(moment().format('YYYY-MM-DD 07:30'), 'minute')) {
       start = moment().format('YYYY-MM-DD 07:30');
     }
-    await reserve(user, session, start, end);
+    ({ success, msg } = await reserve(user, session, start, end));
+    if (!success && msg.includes('积分不足')) {
+      userModel.assign({ enable: false }).write();
+      return { success: false };
+    }
   }
   return { success: true };
 }
