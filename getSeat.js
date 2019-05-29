@@ -444,7 +444,7 @@ async function index() {
   if (
     !moment().isBetween(
       moment().format('YYYY-MM-DD 06:15'),
-      moment().format('YYYY-MM-DD 22:30'),
+      moment().format('YYYY-MM-DD 22:00'),
       'minute',
     )
   ) {
