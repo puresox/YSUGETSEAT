@@ -27,5 +27,30 @@
 2.  下载仓库
 3.  安装依赖 `npm i`
 4.  安装 PM2 `npm -g install pm2`
-5.  配置文件 `config.js`
+5.  参照 `config.example.js` 配置 `config.js` (此文件需要自己新建)
 6.  运行 `npm start`
+
+## 数据库
+
+```javascript
+{
+  "users": [
+    {
+      "name": "姓名",
+      "enable": false,
+      "id": "学号",
+      "pwd": "密码",
+      "seat": "二阅-238",
+      "devId": "101439455",
+      "labId": "100457205",
+      "deleteAuto": true,
+      "session": "ASP.NET_SessionId=**************; path=/; HttpOnly",
+      "adjust": true,
+      "roomId": "100457213",
+      "hasSeat": true
+    }
+  ],
+  "code": "邀请码"
+}
+```
+
