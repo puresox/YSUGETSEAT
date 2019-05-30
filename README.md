@@ -30,7 +30,7 @@
 5.  参照 `config.example.js` 配置 `config.js` (此文件需要自己新建)
 6.  运行 `npm start`
 
-## 数据库
+## 数据库(位于根目录 `db.json`)
 
 ```javascript
 {
